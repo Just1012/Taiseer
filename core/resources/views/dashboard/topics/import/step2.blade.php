@@ -98,7 +98,7 @@
                 <td class="dker text-muted opacity100">
                             <span>{!!  __('backend.topicDate') !!}</span> <span class="text-danger">*</span>
                 <td>
-                    {!! selectColumn("ex_col_date",$ExcelColumns); !!}
+                    {!! selectColumn("ex_col_date",$ExcelColumns) !!}
                 </td>
             </tr>
         @endif
@@ -107,7 +107,7 @@
                 <td class="dker text-muted opacity100">
                             <span>{!!  __('backend.expireDate') !!}</span> <span class="text-danger">*</span>
                 <td>
-                    {!! selectColumn("ex_col_expire_date",$ExcelColumns); !!}
+                    {!! selectColumn("ex_col_expire_date",$ExcelColumns) !!}
                 </td>
             </tr>
         @endif
@@ -118,7 +118,7 @@
                         <td class="dker text-muted opacity100">
                             <span>{!!  __('backend.topicName') !!} {!! @Helper::languageName($ActiveLanguage) !!}</span> <span class="text-danger">*</span>
                         <td>
-                            {!! selectColumn("ex_col_title_".@$ActiveLanguage->code,$ExcelColumns); !!}
+                            {!! selectColumn("ex_col_title_".@$ActiveLanguage->code,$ExcelColumns) !!}
                         </td>
                     </tr>
                 @endif
@@ -131,7 +131,7 @@
                         <td class="dker text-muted opacity100">
                             <span>{!!  __('backend.bannerDetails') !!} {!! @Helper::languageName($ActiveLanguage) !!}</span> <span class="text-danger">*</span>
                         <td>
-                            {!! selectColumn("ex_col_details_".@$ActiveLanguage->code,$ExcelColumns); !!}
+                            {!! selectColumn("ex_col_details_".@$ActiveLanguage->code,$ExcelColumns) !!}
                         </td>
                     </tr>
                 @endif
@@ -143,7 +143,7 @@
                 <td class="dker text-muted opacity100">
                     <span>{!!  __('backend.topicPhoto') !!}</span>
                 <td>
-                    {!! selectColumn("ex_col_photo",$ExcelColumns); !!}
+                    {!! selectColumn("ex_col_photo",$ExcelColumns) !!}
                 </td>
             </tr>
         @endif
@@ -167,7 +167,7 @@
                     <td class="dker text-muted opacity100">
                             <span>{{ $cf_title }}</span> {!! $required_star !!}
                     <td>
-                        {!! selectColumn("ex_".$col_name,$ExcelColumns); !!}
+                        {!! selectColumn("ex_".$col_name,$ExcelColumns) !!}
                     </td>
                 </tr>
             @endforeach

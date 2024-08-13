@@ -88,7 +88,7 @@
                                 {{--Checkbox--}}
                                 <div class="row field-row">
                                     <div class="col-lg-12">
-                                        {!! (($cf_saved_val == 1) ? "&check;" : "&bigotimes;"); !!} {!!  $cf_title !!} {!! "(".(($cf_saved_val == 1) ? __('backend.yes') : __('backend.no')).")" !!}
+                                        {!! (($cf_saved_val == 1) ? "&check;" : "&bigotimes;") !!} {!!  $cf_title !!} {!! "(".(($cf_saved_val == 1) ? __('backend.yes') : __('backend.no')).")" !!}
                                     </div>
                                 </div>
                             @elseif($customField->type ==6 || $customField->type ==13)

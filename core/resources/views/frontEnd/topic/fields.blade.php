@@ -164,7 +164,7 @@
                     <div class="col-lg-{{ @$cols }} col-sm-12">
                         <h5 class="custom-field-title">{!!  $cf_title !!}</h5>
                         <div class="custom-field-value card mb-3 py-2 px-3 rounded-2">
-                            {!! (($cf_saved_val == 1) ? "&check;" : "&bigotimes;"); !!} {!! "(".(($cf_saved_val == 1) ? __('backend.yes') : __('backend.no')).")" !!}
+                            {!! (($cf_saved_val == 1) ? "&check;" : "&bigotimes;") !!} {!! "(".(($cf_saved_val == 1) ? __('backend.yes') : __('backend.no')).")" !!}
                         </div>
                     </div>
                 @elseif($customField->type ==6 || $customField->type ==13)
