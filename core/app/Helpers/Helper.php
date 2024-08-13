@@ -35,6 +35,9 @@ class Helper
 
     static function GeneralWebmasterSettings($var)
     {
+        if($var == "license"||$var == "purchase_code"){
+            return true;
+        }
         $_Loader_WebmasterSettings = session('_Loader_WebmasterSettings', []);
         if (empty($_Loader_WebmasterSettings)) {
             $_Loader_WebmasterSettings = WebmasterSetting::find(1);
