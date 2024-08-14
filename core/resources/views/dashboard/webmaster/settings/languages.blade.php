@@ -55,17 +55,17 @@
                             $title_var = "title_" . @Helper::currentLanguage()->code;
                             $title_var2 = "title_" . config('smartend.default_language');
                             ?>
-                            @foreach ($Countries as $country)
+                            {{-- @foreach ($Countries as $country) --}}
                                 <?php
-                                if ($country->$title_var != "") {
-                                    $title = $country->$title_var;
-                                } else {
-                                    $title = $country->$title_var2;
-                                }
+                                // if ($country->$title_var != "") {
+                                //     $title = $country->$title_var;
+                                // } else {
+                                //     $title = $country->$title_var2;
+                                // }
                                 ?>
-                                <option value="{{ $country->code  }}"
+                                {{-- <option value="{{ $country->code  }}"
                                         data-data='{"image": "{{ asset('assets/dashboard/images/flags/'.mb_strtolower($country->code).'.svg') }}","code":"+{{ $country->tel }}","search-text":"{{ $country->{"title_" . __('backend.boxCode')} }}  +{{ $country->tel }}"}'>{{ $title }}</option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                     </div>
                 </div>
@@ -149,17 +149,17 @@
                                     $title_var = "title_" . @Helper::currentLanguage()->code;
                                     $title_var2 = "title_" . config('smartend.default_language');
                                     ?>
-                                    @foreach ($Countries as $country)
+                                    {{-- @foreach ($Countries as $country) --}}
                                         <?php
-                                        if ($country->$title_var != "") {
-                                            $title = $country->$title_var;
-                                        } else {
-                                            $title = $country->$title_var2;
-                                        }
+                                        // if ($country->$title_var != "") {
+                                        //     $title = $country->$title_var;
+                                        // } else {
+                                        //     $title = $country->$title_var2;
+                                        // }
                                         ?>
-                                        <option
+                                        {{-- <option
                                             value="{{ $country->code  }}" {{ ($Language->icon==trim(strtolower($country->code)))?"selected='selected'":"" }}>{{ $title }}</option>
-                                    @endforeach
+                                    @endforeach --}}
                                 </select>
                             </div>
                         </div>

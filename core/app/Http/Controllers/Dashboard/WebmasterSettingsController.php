@@ -64,12 +64,12 @@ class WebmasterSettingsController extends Controller
         $ContactsGroups = ContactsGroup::orderby('id', 'asc')->get();
         $PermissionsGroups = Permissions::orderby('id', 'asc')->get();
         $SitePages = Topic::where('webmaster_id', 1)->orderby('row_no', 'asc')->get();
-        $Countries = Country::orderby('title_' . @Helper::currentLanguage()->code, 'asc')->get();
+        // $Countries = Country::orderby('title_' . @Helper::currentLanguage()->code, 'asc')->get();
         $Languages = Language::orderby('id', 'asc')->get();
 
         $WebmasterSetting = WebmasterSetting::find(1);
         if (!empty($WebmasterSetting)) {
-            return view("dashboard.webmaster.settings.home", compact("WebmasterSetting", "GeneralWebmasterSections", "ParentMenus", "WebmasterBanners", "ContactsGroups", "SitePages", "PermissionsGroups", "Countries", "Languages"));
+            return view("dashboard.webmaster.settings.home", compact("WebmasterSetting", "GeneralWebmasterSections", "ParentMenus", "WebmasterBanners", "ContactsGroups", "SitePages", "PermissionsGroups", "Languages"));
 
         } else {
             return redirect()->route('adminHome');
