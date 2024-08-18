@@ -44,4 +44,5 @@
         }
     });
 </script>
+
 @stack('after-scripts')

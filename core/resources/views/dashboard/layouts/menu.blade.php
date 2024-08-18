@@ -63,6 +63,14 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ route('company.index') }}" onclick="location.href='{{ route('company.index') }}'">
+                            <span class="nav-icon">
+                                <i class="material-icons">merge_type</i>
+                            </span>
+                            <span class="nav-text">{{ __('backend.company') }}</span>
+                        </a>
+                    </li>
 
                     @if (config('smartend.geoip_status'))
                         @if (Helper::GeneralWebmasterSettings('analytics_status'))

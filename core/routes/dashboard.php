@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\TypeActivityController;
@@ -358,3 +359,11 @@ Route::post('/typeActivity/store', [TypeActivityController::class, 'store'])->na
 Route::get('/typeActivity/{id}/edit', [TypeActivityController::class, 'edit'])->name('typeActivity.Edit');
 Route::post('/typeActivity/{id}/update',[TypeActivityController::class, 'update'])->name('typeActivity.Update');
 Route::get('/typeActivity/updateStatus/{id}', [TypeActivityController::class, 'updateStatus'])->name('typeActivity.updateStatus');
+
+// Companies
+Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
+Route::get('/company/create', [CompanyController::class, 'create'])->name('company.Create');
+Route::post('/company/store', [CompanyController::class, 'store'])->name('company.Store');
+Route::get('/company/{id}/edit', [CompanyController::class, 'edit'])->name('company.Edit');
+Route::post('/company/{id}/update',[CompanyController::class, 'update'])->name('company.Update');
+Route::get('/company/updateStatus/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');

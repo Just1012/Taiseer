@@ -70,4 +70,13 @@
         max-width: 200px;
     }
 </style>
+<style>
+    .select2-container {
+        max-width: 400px; /* Set your max width here */
+    }
+
+    .select2-selection {
+        max-width: 100%;
+    }
+</style>
 @stack('after-styles')
