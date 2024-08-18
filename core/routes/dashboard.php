@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\CountryController;
+use App\Http\Controllers\Admin\CurrencyController;
+use App\Http\Controllers\Admin\TypeActivityController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\UsersController;
 use App\Http\Controllers\Dashboard\WebmasterLicenseController;
@@ -48,25 +51,35 @@ Route::get('/webmaster/banners/create', [WebmasterBannersController::class, 'cre
 Route::post('/webmaster/banners/store', [WebmasterBannersController::class, 'store'])->name('WebmasterBannersStore');
 Route::get('/webmaster/banners/{id}/edit', [WebmasterBannersController::class, 'edit'])->name('WebmasterBannersEdit');
 Route::post('/webmaster/banners/{id}/update', [WebmasterBannersController::class, 'update'])->name('WebmasterBannersUpdate');
-Route::get('/webmaster/banners/destroy/{id}',
-    [WebmasterBannersController::class, 'destroy'])->name('WebmasterBannersDestroy');
-Route::post('/webmaster/banners/updateAll',
-    [WebmasterBannersController::class, 'updateAll'])->name('WebmasterBannersUpdateAll');
+Route::get(
+    '/webmaster/banners/destroy/{id}',
+    [WebmasterBannersController::class, 'destroy']
+)->name('WebmasterBannersDestroy');
+Route::post(
+    '/webmaster/banners/updateAll',
+    [WebmasterBannersController::class, 'updateAll']
+)->name('WebmasterBannersUpdateAll');
 
 // Webmaster Sections
 Route::get('/webmaster/sections', [WebmasterSectionsController::class, 'index'])->name('WebmasterSections');
 Route::get('/webmaster/sections/create', [WebmasterSectionsController::class, 'create'])->name('WebmasterSectionsCreate');
 Route::post('/webmaster/sections/store', [WebmasterSectionsController::class, 'store'])->name('WebmasterSectionsStore');
 Route::get('/webmaster/sections/{id}/edit', [WebmasterSectionsController::class, 'edit'])->name('WebmasterSectionsEdit');
-Route::post('/webmaster/sections/{id}/update',
-    [WebmasterSectionsController::class, 'update'])->name('WebmasterSectionsUpdate');
+Route::post(
+    '/webmaster/sections/{id}/update',
+    [WebmasterSectionsController::class, 'update']
+)->name('WebmasterSectionsUpdate');
 
 Route::post('/webmaster/sections/{id}/seo', [WebmasterSectionsController::class, 'seo'])->name('WebmasterSectionsSEOUpdate');
 
-Route::get('/webmaster/sections/destroy/{id}',
-    [WebmasterSectionsController::class, 'destroy'])->name('WebmasterSectionsDestroy');
-Route::post('/webmaster/sections/updateAll',
-    [WebmasterSectionsController::class, 'updateAll'])->name('WebmasterSectionsUpdateAll');
+Route::get(
+    '/webmaster/sections/destroy/{id}',
+    [WebmasterSectionsController::class, 'destroy']
+)->name('WebmasterSectionsDestroy');
+Route::post(
+    '/webmaster/sections/updateAll',
+    [WebmasterSectionsController::class, 'updateAll']
+)->name('WebmasterSectionsUpdateAll');
 
 // Webmaster Sections :Custom Fields
 Route::get('/webmaster/{webmasterId}/fields', [WebmasterSectionsController::class, 'webmasterFields'])->name('webmasterFields');
@@ -117,10 +130,14 @@ Route::post('/{webmasterId}/topics/{id}/seo', [TopicsController::class, 'seo'])-
 // Topics :Photos
 Route::post('/topics/upload', [TopicsController::class, 'upload'])->name('topicsPhotosUpload');
 Route::post('/{webmasterId}/topics/{id}/photos', [TopicsController::class, 'photos'])->name('topicsPhotosEdit');
-Route::get('/{webmasterId}/topics/{id}/photos/{photo_id}/destroy',
-    [TopicsController::class, 'photosDestroy'])->name('topicsPhotosDestroy');
-Route::post('/{webmasterId}/topics/{id}/photos/updateAll',
-    [TopicsController::class, 'photosUpdateAll'])->name('topicsPhotosUpdateAll');
+Route::get(
+    '/{webmasterId}/topics/{id}/photos/{photo_id}/destroy',
+    [TopicsController::class, 'photosDestroy']
+)->name('topicsPhotosDestroy');
+Route::post(
+    '/{webmasterId}/topics/{id}/photos/updateAll',
+    [TopicsController::class, 'photosUpdateAll']
+)->name('topicsPhotosUpdateAll');
 
 
 Route::post('/topics-import', [TopicsController::class, 'import'])->name('topicsImport');
@@ -129,56 +146,94 @@ Route::post('/topics-import', [TopicsController::class, 'import'])->name('topics
 
 // Topics :Files
 Route::get('/{webmasterId}/topics/{id}/files', [TopicsController::class, 'topicsFiles'])->name('topicsFiles');
-Route::get('/{webmasterId}/topics/{id}/files/create',
-    [TopicsController::class, 'filesCreate'])->name('topicsFilesCreate');
-Route::post('/{webmasterId}/topics/{id}/files/store',
-    [TopicsController::class, 'filesStore'])->name('topicsFilesStore');
-Route::get('/{webmasterId}/topics/{id}/files/{file_id}/edit',
-    [TopicsController::class, 'filesEdit'])->name('topicsFilesEdit');
-Route::post('/{webmasterId}/topics/{id}/files/{file_id}/update',
-    [TopicsController::class, 'filesUpdate'])->name('topicsFilesUpdate');
-Route::get('/{webmasterId}/topics/{id}/files/destroy/{file_id}',
-    [TopicsController::class, 'filesDestroy'])->name('topicsFilesDestroy');
-Route::post('/{webmasterId}/topics/{id}/files/updateAll',
-    [TopicsController::class, 'filesUpdateAll'])->name('topicsFilesUpdateAll');
+Route::get(
+    '/{webmasterId}/topics/{id}/files/create',
+    [TopicsController::class, 'filesCreate']
+)->name('topicsFilesCreate');
+Route::post(
+    '/{webmasterId}/topics/{id}/files/store',
+    [TopicsController::class, 'filesStore']
+)->name('topicsFilesStore');
+Route::get(
+    '/{webmasterId}/topics/{id}/files/{file_id}/edit',
+    [TopicsController::class, 'filesEdit']
+)->name('topicsFilesEdit');
+Route::post(
+    '/{webmasterId}/topics/{id}/files/{file_id}/update',
+    [TopicsController::class, 'filesUpdate']
+)->name('topicsFilesUpdate');
+Route::get(
+    '/{webmasterId}/topics/{id}/files/destroy/{file_id}',
+    [TopicsController::class, 'filesDestroy']
+)->name('topicsFilesDestroy');
+Route::post(
+    '/{webmasterId}/topics/{id}/files/updateAll',
+    [TopicsController::class, 'filesUpdateAll']
+)->name('topicsFilesUpdateAll');
 
 
 // Topics :Related
 Route::get('/{webmasterId}/topics/{id}/related', [TopicsController::class, 'topicsRelated'])->name('topicsRelated');
 Route::get('/relatedLoad/{id}', [TopicsController::class, 'topicsRelatedLoad'])->name('topicsRelatedLoad');
-Route::get('/{webmasterId}/topics/{id}/related/create',
-    [TopicsController::class, 'relatedCreate'])->name('topicsRelatedCreate');
-Route::post('/{webmasterId}/topics/{id}/related/store',
-    [TopicsController::class, 'relatedStore'])->name('topicsRelatedStore');
-Route::get('/{webmasterId}/topics/{id}/related/destroy/{related_id}',
-    [TopicsController::class, 'relatedDestroy'])->name('topicsRelatedDestroy');
-Route::post('/{webmasterId}/topics/{id}/related/updateAll',
-    [TopicsController::class, 'relatedUpdateAll'])->name('topicsRelatedUpdateAll');
+Route::get(
+    '/{webmasterId}/topics/{id}/related/create',
+    [TopicsController::class, 'relatedCreate']
+)->name('topicsRelatedCreate');
+Route::post(
+    '/{webmasterId}/topics/{id}/related/store',
+    [TopicsController::class, 'relatedStore']
+)->name('topicsRelatedStore');
+Route::get(
+    '/{webmasterId}/topics/{id}/related/destroy/{related_id}',
+    [TopicsController::class, 'relatedDestroy']
+)->name('topicsRelatedDestroy');
+Route::post(
+    '/{webmasterId}/topics/{id}/related/updateAll',
+    [TopicsController::class, 'relatedUpdateAll']
+)->name('topicsRelatedUpdateAll');
 // Topics :Comments
 Route::get('/{webmasterId}/topics/{id}/comments', [TopicsController::class, 'topicsComments'])->name('topicsComments');
-Route::get('/{webmasterId}/topics/{id}/comments/create',
-    [TopicsController::class, 'commentsCreate'])->name('topicsCommentsCreate');
-Route::post('/{webmasterId}/topics/{id}/comments/store',
-    [TopicsController::class, 'commentsStore'])->name('topicsCommentsStore');
-Route::get('/{webmasterId}/topics/{id}/comments/{comment_id}/edit',
-    [TopicsController::class, 'commentsEdit'])->name('topicsCommentsEdit');
-Route::post('/{webmasterId}/topics/{id}/comments/{comment_id}/update',
-    [TopicsController::class, 'commentsUpdate'])->name('topicsCommentsUpdate');
-Route::get('/{webmasterId}/topics/{id}/comments/destroy/{comment_id}',
-    [TopicsController::class, 'commentsDestroy'])->name('topicsCommentsDestroy');
-Route::post('/{webmasterId}/topics/{id}/comments/updateAll',
-    [TopicsController::class, 'commentsUpdateAll'])->name('topicsCommentsUpdateAll');
+Route::get(
+    '/{webmasterId}/topics/{id}/comments/create',
+    [TopicsController::class, 'commentsCreate']
+)->name('topicsCommentsCreate');
+Route::post(
+    '/{webmasterId}/topics/{id}/comments/store',
+    [TopicsController::class, 'commentsStore']
+)->name('topicsCommentsStore');
+Route::get(
+    '/{webmasterId}/topics/{id}/comments/{comment_id}/edit',
+    [TopicsController::class, 'commentsEdit']
+)->name('topicsCommentsEdit');
+Route::post(
+    '/{webmasterId}/topics/{id}/comments/{comment_id}/update',
+    [TopicsController::class, 'commentsUpdate']
+)->name('topicsCommentsUpdate');
+Route::get(
+    '/{webmasterId}/topics/{id}/comments/destroy/{comment_id}',
+    [TopicsController::class, 'commentsDestroy']
+)->name('topicsCommentsDestroy');
+Route::post(
+    '/{webmasterId}/topics/{id}/comments/updateAll',
+    [TopicsController::class, 'commentsUpdateAll']
+)->name('topicsCommentsUpdateAll');
 // Topics :Maps
 Route::get('/{webmasterId}/topics/{id}/maps', [TopicsController::class, 'topicsMaps'])->name('topicsMaps');
 Route::get('/{webmasterId}/topics/{id}/maps/create', [TopicsController::class, 'mapsCreate'])->name('topicsMapsCreate');
 Route::post('/{webmasterId}/topics/{id}/maps/store', [TopicsController::class, 'mapsStore'])->name('topicsMapsStore');
 Route::get('/{webmasterId}/topics/{id}/maps/{map_id}/edit', [TopicsController::class, 'mapsEdit'])->name('topicsMapsEdit');
-Route::post('/{webmasterId}/topics/{id}/maps/{map_id}/update',
-    [TopicsController::class, 'mapsUpdate'])->name('topicsMapsUpdate');
-Route::get('/{webmasterId}/topics/{id}/maps/destroy/{map_id}',
-    [TopicsController::class, 'mapsDestroy'])->name('topicsMapsDestroy');
-Route::post('/{webmasterId}/topics/{id}/maps/updateAll',
-    [TopicsController::class, 'mapsUpdateAll'])->name('topicsMapsUpdateAll');
+Route::post(
+    '/{webmasterId}/topics/{id}/maps/{map_id}/update',
+    [TopicsController::class, 'mapsUpdate']
+)->name('topicsMapsUpdate');
+Route::get(
+    '/{webmasterId}/topics/{id}/maps/destroy/{map_id}',
+    [TopicsController::class, 'mapsDestroy']
+)->name('topicsMapsDestroy');
+Route::post(
+    '/{webmasterId}/topics/{id}/maps/updateAll',
+    [TopicsController::class, 'mapsUpdateAll']
+)->name('topicsMapsUpdateAll');
 
 // keditor
 Route::get('/keditor/{topic_id?}', [TopicsController::class, 'keditor'])->name('keditor');
@@ -279,3 +334,27 @@ Route::get('/cache-clear', [DashboardController::class, 'cache_clear'])->name('c
 Route::get('/cache-cleared', [DashboardController::class, 'cache_cleared'])->name('cacheCleared');
 // logout
 Route::get('/logout', [DashboardController::class, 'logout'])->name('adminLogout');
+
+// Currency
+Route::get('/currency', [CurrencyController::class, 'index'])->name('currency.index');
+Route::get('/currency/create', [CurrencyController::class, 'create'])->name('currency.Create');
+Route::post('/currency/store', [CurrencyController::class, 'store'])->name('currency.Store');
+Route::get('/currency/{id}/edit', [CurrencyController::class, 'edit'])->name('currency.Edit');
+Route::post('/currency/{id}/update',[CurrencyController::class, 'update'])->name('currency.Update');
+Route::get('/currency/updateStatus/{id}', [CurrencyController::class, 'updateStatus'])->name('currency.updateStatus');
+
+// Country
+Route::get('/country', [CountryController::class, 'index'])->name('country.index');
+Route::get('/country/create', [CountryController::class, 'create'])->name('country.Create');
+Route::post('/country/store', [CountryController::class, 'store'])->name('country.Store');
+Route::get('/country/{id}/edit', [CountryController::class, 'edit'])->name('country.Edit');
+Route::post('/country/{id}/update',[CountryController::class, 'update'])->name('country.Update');
+Route::get('/country/updateStatus/{id}', [CountryController::class, 'updateStatus'])->name('country.updateStatus');
+
+// Type Activity
+Route::get('/typeActivity', [TypeActivityController::class, 'index'])->name('typeActivity.index');
+Route::get('/typeActivity/create', [TypeActivityController::class, 'create'])->name('typeActivity.Create');
+Route::post('/typeActivity/store', [TypeActivityController::class, 'store'])->name('typeActivity.Store');
+Route::get('/typeActivity/{id}/edit', [TypeActivityController::class, 'edit'])->name('typeActivity.Edit');
+Route::post('/typeActivity/{id}/update',[TypeActivityController::class, 'update'])->name('typeActivity.Update');
+Route::get('/typeActivity/updateStatus/{id}', [TypeActivityController::class, 'updateStatus'])->name('typeActivity.updateStatus');

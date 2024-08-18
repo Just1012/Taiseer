@@ -73,7 +73,7 @@
                                     class="col-sm-2 form-control-label">{!!  __('backend.sectionName') !!} {!! @Helper::languageName($ActiveLanguage) !!}
                                 </label>
                                 <div class="col-sm-10">
-                                    {!! Form::text('title_'.@$ActiveLanguage->code,$WebmasterSections->{'title_'.@$ActiveLanguage->code}, array('placeholder' => '','class' => 'form-control','required'=>'', 'dir'=>@$ActiveLanguage->direction)) !!}
+                                    {!! Form::text('name_'.@$ActiveLanguage->code,$WebmasterSections->{'name_'.@$ActiveLanguage->code}, array('placeholder' => '','class' => 'form-control','required'=>'', 'dir'=>@$ActiveLanguage->direction)) !!}
                                 </div>
                             </div>
                         @endforeach

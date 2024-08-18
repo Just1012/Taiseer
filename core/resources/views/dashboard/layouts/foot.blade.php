@@ -2,7 +2,6 @@
     var public_lang = "{{ @Helper::currentLanguage()->code }}";
     var public_folder_path = "{{ asset('') }}";
     var first_day_of_week = "{{ config('smartend.first_day_of_week') }}";
-
 </script>
 @stack('before-scripts')
 <!-- jQuery -->
@@ -32,5 +31,17 @@
 
 <script src="{{ asset('assets/dashboard/js/scripts/app.js') }}?v={{ Helper::system_version() }}" defer></script>
 
-{!! Helper::SaveVisitorInfo("Dashboard &raquo; ".trim($__env->yieldContent('title'))) !!}
+{!! Helper::SaveVisitorInfo('Dashboard &raquo; ' . trim($__env->yieldContent('title'))) !!}
+<script type="text/javascript" src="https://jeremyfagis.github.io/dropify/dist/js/dropify.min.js"></script>
+
+<script>
+    $('.dropify').dropify({
+        messages: {
+            'default': 'Drag and drop a file here or click',
+            'replace': 'Drag and drop or click to replace',
+            'remove': 'Remove',
+            'error': 'Ooops, something wrong happened.'
+        }
+    });
+</script>
 @stack('after-scripts')
