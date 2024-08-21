@@ -341,7 +341,7 @@ Route::get('/currency', [CurrencyController::class, 'index'])->name('currency.in
 Route::get('/currency/create', [CurrencyController::class, 'create'])->name('currency.Create');
 Route::post('/currency/store', [CurrencyController::class, 'store'])->name('currency.Store');
 Route::get('/currency/{id}/edit', [CurrencyController::class, 'edit'])->name('currency.Edit');
-Route::post('/currency/{id}/update',[CurrencyController::class, 'update'])->name('currency.Update');
+Route::post('/currency/{id}/update', [CurrencyController::class, 'update'])->name('currency.Update');
 Route::get('/currency/updateStatus/{id}', [CurrencyController::class, 'updateStatus'])->name('currency.updateStatus');
 
 // Country
@@ -349,7 +349,7 @@ Route::get('/country', [CountryController::class, 'index'])->name('country.index
 Route::get('/country/create', [CountryController::class, 'create'])->name('country.Create');
 Route::post('/country/store', [CountryController::class, 'store'])->name('country.Store');
 Route::get('/country/{id}/edit', [CountryController::class, 'edit'])->name('country.Edit');
-Route::post('/country/{id}/update',[CountryController::class, 'update'])->name('country.Update');
+Route::post('/country/{id}/update', [CountryController::class, 'update'])->name('country.Update');
 Route::get('/country/updateStatus/{id}', [CountryController::class, 'updateStatus'])->name('country.updateStatus');
 
 // Type Activity
@@ -357,13 +357,13 @@ Route::get('/typeActivity', [TypeActivityController::class, 'index'])->name('typ
 Route::get('/typeActivity/create', [TypeActivityController::class, 'create'])->name('typeActivity.Create');
 Route::post('/typeActivity/store', [TypeActivityController::class, 'store'])->name('typeActivity.Store');
 Route::get('/typeActivity/{id}/edit', [TypeActivityController::class, 'edit'])->name('typeActivity.Edit');
-Route::post('/typeActivity/{id}/update',[TypeActivityController::class, 'update'])->name('typeActivity.Update');
+Route::post('/typeActivity/{id}/update', [TypeActivityController::class, 'update'])->name('typeActivity.Update');
 Route::get('/typeActivity/updateStatus/{id}', [TypeActivityController::class, 'updateStatus'])->name('typeActivity.updateStatus');
 
 // Companies
 Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
 Route::get('/company/create', [CompanyController::class, 'create'])->name('company.Create');
 Route::post('/company/store', [CompanyController::class, 'store'])->name('company.Store');
-Route::get('/company/{id}/edit', [CompanyController::class, 'edit'])->name('company.Edit');
-Route::post('/company/{id}/update',[CompanyController::class, 'update'])->name('company.Update');
-Route::get('/company/updateStatus/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');
+Route::get('/company/{company}/edit', [CompanyController::class, 'edit'])->name('company.Edit');
+Route::post('/company/{id}/update', [CompanyController::class, 'update'])->name('company.Update');
+Route::get('/status/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');

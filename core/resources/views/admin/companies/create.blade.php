@@ -1,6 +1,8 @@
 @extends('dashboard.layouts.master')
 @section('title', __('backend.newCompanyCreate'))
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@push('after-styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@endpush
 @section('content')
     <div class="padding">
         <div class="box">
@@ -172,21 +174,44 @@
                     <label for="" class="col-sm-2 form-control-label"></label>
                     <div class="col-sm-5">
                         <select name="country_id[]" id="country_id" class="form-control select2" multiple>
-                            <option value="0">- - {!! __('backend.country') !!} - -</option>
                             @foreach ($country as $value)
-                                <option value="{{ $value->id }}">{{ $value->name_ar }}</option>
+                                <?php
+                                $title_var = 'name_' . @Helper::currentLanguage()->code;
+                                $title_var2 = 'name_' . config('smartend.default_language');
+                                $typeName = $value->$title_var != '' ? $value->$title_var : $value->$title_var2;
+                                ?>
+                                <option value="{{ $value->id }}" data-name-ar="{{ $value->name_ar }}"
+                                    data-name-en="{{ $value->name_en }}">
+                                    {{ $typeName }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-sm-5">
                         <select name="typeActivity_id[]" id="typeActivity_id" class="form-control select2" multiple>
-                            <option value="0">- - {!! __('backend.type') !!} - -</option>
-                            @foreach ($typeActivity as $value)
-                                <option value="{{ $value->id }}">{{ $value->name_ar }}</option>
+
+                            @foreach ($typeActivity as $type)
+                                <?php
+                                $title_var = 'name_' . @Helper::currentLanguage()->code;
+                                $title_var2 = 'name_' . config('smartend.default_language');
+                                $info_var = 'info_' . @Helper::currentLanguage()->code;
+                                $info_var2 = 'info_' . config('smartend.default_language');
+                                $typeName = $type->$info_var != '' ? $type->$info_var : $type->$info_var2;
+                                $typeInfo = $type->$info_var != '' ? $type->$info_var : $type->$info_var2;
+                                ?>
+                                <option value="{{ $type->id }}" data-name-ar="{{ $type->name_ar }}"
+                                    data-name-en="{{ $type->name_en }} " data-info-ar="{{ $type->info_ar }}"
+                                    data-info-en="{{ $type->info_en }} ">
+                                    {{ $typeName }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
+
+                <!-- Placeholder for dynamically generated text areas -->
+                <div id="dynamic-textareas"></div>
+
 
                 <hr />
 
@@ -231,6 +256,67 @@
                 placeholder: '- - {!! __('backend.type') !!} - -',
                 allowClear: true,
                 width: '100%' // Adjusts width within the form control
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Initialize select2
+            $('#typeActivity_id').select2({
+                placeholder: '- - {!! __('backend.type') !!} - -',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Get the current application locale (Arabic or English)
+            var currentLocale = "{{ app()->getLocale() }}"; // Assuming 'ar' for Arabic and 'en' for English
+
+            // Listen for changes in the typeActivity dropdown
+            $('#typeActivity_id').on('change', function() {
+                // Get selected values
+                var selectedTypes = $(this).val();
+
+                // Clear previous text areas
+                $('#dynamic-textareas').empty();
+
+                // If a type is selected, generate the text areas
+                if (selectedTypes && selectedTypes.length > 0) {
+                    selectedTypes.forEach(function(typeId) {
+
+                        // Find the selected option's text (name of the type) based on current locale
+                        var typeName = currentLocale === 'ar' ?
+                            $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                'name-ar') // Arabic name
+                            :
+                            $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                'name-en');
+                                 // English name
+
+
+                        // Loop through each language
+                        @foreach (Helper::languagesList() as $ActiveLanguage)
+                        var langCode = '{{ $ActiveLanguage->code }}';
+                        var typeInfo = langCode === 'ar' ?
+                            $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                'info-ar') // Arabic info
+                            :
+                            $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                'info-en'); // English info
+
+            
+                            var textarea = `
+                        <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in {!! @Helper::languageName($ActiveLanguage) !!}</label>
+                            <div class="col-sm-10">
+                                <textarea name="info_{{ @$ActiveLanguage->code }}[]" class="form-control" dir="{{ @$ActiveLanguage->direction }}" placeholder="${typeInfo}"></textarea>
+                            </div>
+                        </div>
+                    `;
+                            // Append to the dynamic text area container
+                            $('#dynamic-textareas').append(textarea);
+                        @endforeach
+                    });
+                }
             });
         });
     </script>

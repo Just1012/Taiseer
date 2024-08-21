@@ -11,4 +11,8 @@ class Country extends Model
     public function currency(){
         return $this->belongsTo(Currency::class,'currency_id');
     }
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class, 'company_countries', 'country_id', 'company_id');
+    }
 }

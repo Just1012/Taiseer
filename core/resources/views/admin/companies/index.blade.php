@@ -2,6 +2,15 @@
 @section('title', __('backend.company'))
 @section('content')
     <div class="padding">
+        @if (session('status') == 'success')
+            <div id="flash-message" class="alert alert-success">
+                {{ session('message') }}
+            </div>
+        @elseif (session('status') == 'error')
+            <div id="flash-message" class="alert alert-danger">
+                {{ session('message') }}
+            </div>
+        @endif
         <div class="box">
             <div class="box-header dker m-b-xs">
                 <h3>{{ __('backend.company') }}</h3>
@@ -45,7 +54,7 @@
                                 <th class="text-center w-64">ID</th>
                                 <th>{{ __('backend.companyName') }}</th>
                                 <th class="text-center">{{ __('backend.currency') }}</th>
-                                <th class="text-center">{{ __('backend.flag') }}</th>
+                                <th class="text-center">{{ __('backend.companStatus') }}</th>
                                 <th class="text-center" style="width:200px;">{{ __('backend.options') }}</th>
                             </tr>
                         </thead>
@@ -72,59 +81,29 @@
                                     <td class="text-center">{{ $WebSection->id }}</td>
                                     <td class="h6"> {!! $title !!}</td>
                                     <td class="h6">{{ $WebSection->email }}</td>
-                                    <td class="h6">
-                                        <img style="height: 40px" src="{{ asset('uploads/topics/' . $WebSection->flag) }}"
-                                            alt="">
-                                    </td>
+                                    <!-- Status Dropdown -->
+                                    <td class="text-center">
+                                        <select class="status-dropdown btn btn-info btn-sm"
+                                            data-id="{{ $WebSection->id }}">
 
+                                            <option value="1"
+                                                {{ $WebSection->company_status_id == 1 ? 'selected' : '' }}>قيد الانتظار
+                                            </option>
+                                            <option value="2"
+                                                {{ $WebSection->company_status_id == 2 ? 'selected' : '' }}>قبول</option>
+                                            <option value="3"
+                                                {{ $WebSection->company_status_id == 3 ? 'selected' : '' }}>رفض</option>
+
+                                        </select>
+                                    </td>
                                     <td class="text-center">
                                         <a class="btn btn-sm info"
-                                            href="{{ route('company.Edit', ['id' => $WebSection->id]) }}">
+                                            href="{{ route('company.Edit', ['company' => $WebSection->id]) }}">
                                             <small><i class="material-icons">&#xe3c9;</i> {{ __('backend.edit') }}
                                             </small>
                                         </a>
-
-                                        <button class="btn btn-sm {{ $WebSection->status == 0 ? 'warning' : 'success' }}"
-                                            data-toggle="modal" data-target="#m-{{ $WebSection->id }}"
-                                            ui-toggle-class="bounce" ui-target="#animate">
-                                            <small>
-                                                @if ($WebSection->status == 0)
-                                                    <i class="material-icons">close</i>
-                                                @else
-                                                    <i class="material-icons">check</i>
-                                                @endif
-                                                {{ __('backend.status') }}
-                                            </small>
-                                        </button>
-
-
                                     </td>
                                 </tr>
-                                <!-- .modal -->
-                                <div id="m-{{ $WebSection->id }}" class="modal fade" data-backdrop="true">
-                                    <div class="modal-dialog" id="animate">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">{{ __('backend.confirmation') }}</h5>
-                                            </div>
-                                            <div class="modal-body text-center p-lg">
-                                                <p>
-                                                    {{ $WebSection->status == 0 ? __('backend.statusActive') : __('backend.statusDeActive') }}
-                                                    <br>
-                                                    <strong>[ {!! $title !!}
-                                                        ]</strong>
-                                                </p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn dark-white p-x-md"
-                                                    data-dismiss="modal">{{ __('backend.no') }}</button>
-                                                <a href="{{ route('company.updateStatus', ['id' => $WebSection->id]) }}"
-                                                    class="btn danger p-x-md">{{ __('backend.yes') }}</a>
-                                            </div>
-                                        </div><!-- /.modal-content -->
-                                    </div>
-                                </div>
-                                <!-- / .modal -->
                             @endforeach
 
                         </tbody>
@@ -201,6 +180,51 @@
             } else {
                 $("#submit_all").css("display", "inline-block");
                 $("#submit_show_msg").css("display", "none");
+            }
+        });
+    </script>
+    <script>
+        $(document).on('change', '.status-dropdown', function() {
+            var url = '{{ route('company.updateStatus', ':id') }}'; // URL for the status update
+            var companyId = $(this).data('id'); // The ID of the company
+            var newStatus = $(this).val(); // The new status value selected by the user
+            url = url.replace(':id', companyId); // Replace the placeholder in the URL with the actual company ID
+
+            $.ajax({
+                type: 'GET', // Sending the request as a GET (you can use POST if preferred)
+                url: url, // The route URL for updating the status
+                data: {
+                    status: newStatus // Sending the new status value
+                },
+                success: function(response) {
+                    // Refresh the page after the status update
+                    location.reload();
+                },
+                error: function(response) {
+                    // Refresh the page in case of error
+                    location.reload();
+                }
+            });
+        });
+    </script>
+    <script>
+        // Wait until the document is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select the flash message by its ID
+            var flashMessage = document.getElementById('flash-message');
+
+            // If the flash message exists, set a timer to hide it after 5 seconds
+            if (flashMessage) {
+                setTimeout(function() {
+                    // Fade out the message and remove it from the DOM
+                    flashMessage.style.transition = 'opacity 1s ease';
+                    flashMessage.style.opacity = '0';
+
+                    // Remove the message from the DOM after the fade out completes
+                    setTimeout(function() {
+                        flashMessage.remove();
+                    }, 1000); // 1 second to allow the fade-out effect
+                }, 5000); // 5 seconds before starting to hide the message
             }
         });
     </script>

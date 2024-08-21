@@ -16,11 +16,12 @@ use Exception;
 
 class CompanyService
 {
-    protected $uploadPath = 'uploads/companies/'; // Define your upload path
+    private $uploadPath = 'uploads/companies/'; // Define your upload path
 
     public function storeCompany($request)
     {
         DB::beginTransaction(); // Start the transaction
+
         try {
             // Define validation rules
             $rules = [
@@ -60,6 +61,7 @@ class CompanyService
             // Validate request data
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
+                DB::rollBack(); // Rollback the transaction if validation fails
                 return redirect()->back()->withErrors($validator)->withInput();
             }
 
@@ -70,7 +72,7 @@ class CompanyService
                 if ($request->hasFile($fileInput)) {
                     $file = $request->file($fileInput);
                     $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
-                    $path = public_path($this->uploadPath);
+                    $path = $this->uploadPath;
 
                     // Ensure the directory exists
                     if (!File::exists($path)) {
@@ -81,8 +83,8 @@ class CompanyService
                     $file->move($path, $fileFinalName);
 
                     // Resize & optimize
-                    Helper::imageResize($path . $fileFinalName);
-                    Helper::imageOptimize($path . $fileFinalName);
+                    Helper::imageResize($path . '/' . $fileFinalName);
+                    Helper::imageOptimize($path . '/' . $fileFinalName);
 
                     $fileFinalNames[$fileInput] = $fileFinalName;
                 }
@@ -112,45 +114,161 @@ class CompanyService
             // Save the company
             $company->save();
 
-            // Assign country and activity type
-            $typeActivities = $request->input('typeActivity_id', []); // No need for json_decode
-            $countries = $request->input('country_id', []); // No need for json_decode
-
-            // Iterate through the selected type activities
-            foreach ($typeActivities as $typeActivityID) {
-                // Create TypeActivityCompany records for each type activity
-                TypeActivityCompany::create([
-                    'company_id' => $company->id,
-                    'type_activity_id' => $typeActivityID,
-                ]);
-            }
-
-            // Iterate through the selected countries
+            // Handle country associations
+            $countries = $request->input('country_id', []);
             foreach ($countries as $countryID) {
-                // Assuming there’s a CountryCompany model to associate companies and countries
                 CompanyCountry::create([
                     'company_id' => $company->id,
                     'country_id' => $countryID,
                 ]);
             }
 
+            // Handle type activities associations
+            $typeActivities = $request->input('typeActivity_id', []);
+
+            foreach ($typeActivities as $index => $typeActivityID) {
+                $info_ar = $request->input("info_ar.$index") ?? null;
+                $info_en = $request->input("info_en.$index") ?? null;
+
+
+                TypeActivityCompany::create([
+                    'company_id' => $company->id,
+                    'type_activity_id' => $typeActivityID,
+                    'info_ar' => $info_ar,
+                    'info_en' => $info_en,
+
+                ]); // Bulk insert with timestamps
+            }
+
+
             foreach ($typeActivities as $typeActivityID) {
-                // Assuming there’s a CountryCompany model to associate companies and countries
                 CompanyActivitySelect::create([
                     'company_id' => $company->id,
                     'type_activity_id' => $typeActivityID,
-                ]);
+                ]); // Bulk insert with timestamps
             }
 
-            DB::commit();
+
+
+            DB::commit(); // Commit the transaction
             return true;
         } catch (Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Rollback the transaction on exception
             return redirect()->back()->with('errorMessage', __('backend.error'));
         }
     }
 
+    public function updateCompany($request, $id)
+    {
+        // Validate the request data
+        $validatedData = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'about_en' => 'nullable|string',
+            'about_ar' => 'nullable|string',
+            'email' => 'required|email|max:255',
+            'code' => 'required|string|max:50',
+            'phone' => 'nullable|string|max:20',
+            'BL' => 'nullable|string|max:50',
+            'country_id' => 'nullable|array',
+            'country_id.*' => 'exists:countries,id',
+            'typeActivity_id' => 'nullable|array',
+            'typeActivity_id.*' => 'exists:type_activities,id',
+            'info_ar.*' => 'nullable|string',
+            'info_en.*' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'BL_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'id_front_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
+        DB::beginTransaction(); // Start the transaction
+
+        try {
+            // Find the company by ID
+            $company = Company::findOrFail($id);
+
+            // Handle file uploads
+            $fileFinalNames = [];
+            $filesToUpload = ['logo', 'cover', 'BL_image', 'id_front_image'];
+
+            foreach ($filesToUpload as $fileInput) {
+                if ($request->hasFile($fileInput)) {
+                    $file = $request->file($fileInput);
+                    $fileFinalName = time() . rand(1111, 9999) . '.' . $file->getClientOriginalExtension();
+                    $path = $this->uploadPath;
+
+                    // Ensure the directory exists
+                    if (!File::exists($path)) {
+                        File::makeDirectory($path, 0755, true);
+                    }
+
+                    // Move the uploaded file
+                    $file->move($path, $fileFinalName);
+
+                    // Resize & optimize
+                    Helper::imageResize($path . '/' . $fileFinalName);
+                    Helper::imageOptimize($path . '/' . $fileFinalName);
+
+                    $fileFinalNames[$fileInput] = $fileFinalName;
+                }
+            }
+
+            // Update company fields for all languages
+            foreach (Helper::languagesList() as $ActiveLanguage) {
+                $company->{"name_" . $ActiveLanguage->code} = $request->input("name_" . $ActiveLanguage->code);
+                $company->{"about_" . $ActiveLanguage->code} = $request->input("about_" . $ActiveLanguage->code);
+            }
+
+            // Update other company fields
+            $company->email = $request->email;
+            $company->code = $request->code;
+            $company->phone = $request->phone;
+            $company->BL = $request->BL;
+            $company->company_status_id = $company->company_status_id ?? 1;
+
+            // Assign uploaded files if they exist
+            foreach ($fileFinalNames as $field => $filename) {
+                $company->{$field} = $filename;
+            }
+
+            // Save the updated company
+            $company->save();
+
+            // Update country associations (sync to avoid duplicates)
+            $countries = $request->input('country_id', []);
+            $company->countries()->sync($countries); // Sync the country IDs directly
+
+            // Update type activities associations
+            $typeActivities = $request->input('typeActivity_id', []);
+            foreach ($typeActivities as $index => $typeActivityID) {
+                $info_ar = $request->input("info_ar.$index") ?? null;
+                $info_en = $request->input("info_en.$index") ?? null;
+
+                TypeActivityCompany::updateOrCreate(
+                    [
+                        'company_id' => $company->id,
+                        'type_activity_id' => $typeActivityID,
+                    ],
+                    [
+                        'info_ar' => $info_ar,
+                        'info_en' => $info_en,
+                    ]
+                );
+            }
+
+            DB::commit(); // Commit the transaction
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback the transaction on error
+
+            // Log the error for debugging
+ 
+            // Return false and a user-friendly error message
+            return response()->json(['error' => 'Failed to update company. Please try again.'], 500);
+        }
+    }
 
     public function getCompany()
     {

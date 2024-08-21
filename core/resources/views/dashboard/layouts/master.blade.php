@@ -5,6 +5,7 @@
 </head>
 <body>
 <div class="app" id="app">
+    <x-toaster-hub />
     @php( $webmailsNewCount= Helper::webmailsNewCount())
     @include('dashboard.layouts.menu')
 
@@ -20,5 +21,7 @@
     @include('dashboard.layouts.settings')
 </div>
 @include('dashboard.layouts.foot')
+<x-toaster-hub />
+
 </body>
 </html>

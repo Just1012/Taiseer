@@ -44,5 +44,9 @@
         }
     });
 </script>
-
+<script>
+    @if (Session::has('toastr'))
+        {!! Session::get('toastr') !!}
+    @endif
+</script>
 @stack('after-scripts')
