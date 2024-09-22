@@ -123,4 +123,8 @@ class Topic extends Model implements Feedable
     {
         return $this->hasMany('App\Models\TopicField', 'topic_id')->orderby('id', 'asc');
     }
+
+    public function company(){
+        return $this->belongsTo(Company::class,'company_id');
+    }
 }

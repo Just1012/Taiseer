@@ -300,6 +300,7 @@ if ($WebmasterSection->$title_var != '') {
                             <th class="text-center w-64">ID</th>
                             @if ($WebmasterSection->title_status)
                                 <th>{{ __('backend.topicName') }}</th>
+                                <th>{{ __('backend.companyName') }}</th> <!-- New column for company name -->
                             @endif
                             @if ($WebmasterSection->date_status)
                                 <th style="width:100px;">{{ __('backend.topicDate') }}</th>
@@ -619,6 +620,8 @@ if ($WebmasterSection->$title_var != '') {
                     @if ($WebmasterSection->title_status)
                         {
                             "data": "id"
+                        }, {
+                            "data": "company_name", // Add this to fetch and display company name
                         },
                     @endif
                     @if ($WebmasterSection->date_status)
@@ -710,7 +713,7 @@ if ($WebmasterSection->$title_var != '') {
         $("#topic_delete_btn").click(function() {
             $(this).html(
                 "<img src=\"{{ asset('assets/dashboard/images/loading.gif') }}\" style=\"height: 25px\"/> {!! __('backend.yes') !!}"
-                );
+            );
             var row_id = $(this).attr('row-id');
             if (row_id != "") {
                 $.ajax({
