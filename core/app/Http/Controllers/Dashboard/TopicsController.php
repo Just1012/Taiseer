@@ -97,6 +97,9 @@ class TopicsController extends Controller
         $title_var = "title_" . @Helper::currentLanguage()->code;
         $title_var2 = "title_" . config('smartend.default_language');
 
+        $name_var = "name_" . @Helper::currentLanguage()->code;
+        $name_var2 = 'name_' . config('smartend.default_language');
+
         $limit = $request->input('length');
         $start = $request->input('start');
         $dir = $request->input('order.0.dir');
@@ -265,8 +268,15 @@ class TopicsController extends Controller
                 } else {
                     $title = $Topic->$title_var2;
                 }
+
+                if ($Topic->$name_var != "") {
+                    $name =  $Topic->company->$name_var2;
+                } else {
+                    $name =  $Topic->company->$name_var;
+                }
+
                 // Get company name
-                $company_name = $Topic->company ? $Topic->company->name_ar : '';
+                $company_name = $name;
                 // Add company name to nested data
                 $nestedData['company_name'] = $company_name;
 
