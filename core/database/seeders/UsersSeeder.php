@@ -26,7 +26,6 @@ class UsersSeeder extends Seeder
         $newuser->status = "1";
         $newuser->created_by = 1;
         $newuser->user_type = 'admin';
-        $newuser->company_id = '1';
         $newuser->save();
     }
 }

@@ -85,11 +85,27 @@
                     </div>
                 </div>
 
-
+                <!-- Enum for user_type -->
                 <div class="form-group row">
+                    <label for="user_type" class="col-sm-2 form-control-label">User Type</label>
+                    <div class="col-sm-10">
+                        <select name="user_type" id="user_type" class="form-control c-select" required>
+                            <option value="">- - Select User Type - -</option>
+                            <option value="admin">Admin</option>
+                            <option value="customer">Customer</option>
+                            <option value="company_user">Company User</option>
+                        </select>
+                        @error('user_type')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Company ID (conditionally visible) -->
+                <div class="form-group row" id="company_id_section" style="display: none;">
                     <label for="company_id" class="col-sm-2 form-control-label">{!! __('backend.Company') !!}</label>
                     <div class="col-sm-10">
-                        <select name="company_id" id="company_id" required class="form-control c-select">
+                        <select name="company_id" id="company_id" class="form-control c-select">
                             <option value="">- - {!! __('backend.selectCompanysType') !!} - -</option>
                             <?php
                             $title_var = 'name_' . @Helper::currentLanguage()->code;
@@ -109,22 +125,6 @@
                     </div>
                 </div>
 
-                <!-- Enum for user_type -->
-                <div class="form-group row">
-                    <label for="user_type" class="col-sm-2 form-control-label">User Type</label>
-                    <div class="col-sm-10">
-                        <select name="user_type" id="user_type" class="form-control c-select" required>
-                            <option value="">- - Select User Type - -</option>
-                            <option value="admin">Admin</option>
-                            <option value="customer">Customer</option>
-                            <option value="company_user">Company User</option>
-                        </select>
-                        @error('user_type')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-
                 <div class="form-group row m-t-md">
                     <div class="offset-sm-2 col-sm-10">
                         <button type="submit" class="btn btn-primary m-t"><i class="material-icons">&#xe31b;</i>
@@ -138,4 +138,23 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript to handle dynamic visibility of company_id based on user_type -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var userTypeSelect = document.getElementById('user_type');
+            var companyIdSection = document.getElementById('company_id_section');
+
+            userTypeSelect.addEventListener('change', function() {
+                if (this.value === 'company_user') {
+                    companyIdSection.style.display = 'block'; // Show company_id section
+                } else {
+                    companyIdSection.style.display = 'none'; // Hide company_id section
+                }
+            });
+
+            // Trigger the change event on page load to set the correct visibility
+            userTypeSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
 @endsection

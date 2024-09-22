@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests;
-use App\Models\Company;
-use App\Models\Permissions;
-use App\Models\User;
-use App\Models\WebmasterSection;
 use Auth;
 use File;
-use Illuminate\Config;
-use Illuminate\Http\Request;
-use Redirect;
 use Helper;
+use Redirect;
+use App\Models\User;
+use App\Http\Requests;
+use Illuminate\Config;
+use App\Models\Company;
+use App\Models\Permissions;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\WebmasterSection;
 
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
@@ -47,8 +49,10 @@ class UsersController extends Controller
         // General END
 
         if (@Auth::user()->permissionsGroup->view_status) {
-            $Users = User::with('company')->where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby('id',
-                'asc')->paginate(config('smartend.backend_pagination'));
+            $Users = User::with('company')->where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby(
+                'id',
+                'asc'
+            )->paginate(config('smartend.backend_pagination'));
             $Permissions = Permissions::where('created_by', '=', Auth::user()->id)->orderby('id', 'asc')->get();
         } else {
             $Users = User::with('company')->orderby('id', 'asc')->paginate(config('smartend.backend_pagination'));
@@ -68,7 +72,7 @@ class UsersController extends Controller
         if (!@Auth::user()->permissionsGroup->settings_status) {
             return redirect()->route('NoPermission');
         }
-        $companies = Company::where('company_status_id',2)->get();
+        $companies = Company::where('company_status_id', 2)->get();
 
         // General for all pages
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
@@ -86,41 +90,41 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-
         // Check Permissions
         if (!@Auth::user()->permissionsGroup->settings_status) {
             return redirect()->route('NoPermission');
         }
 
+        // Validate request
         $this->validate($request, [
             'photo' => 'image',
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'permissions_id' => 'required',
-            'phone' =>' required|string|unique:users',
+            'phone' => 'required|string|unique:users',
             'user_type' => 'required|in:admin,customer,company_user',
-            'company_id' => 'required|exists:companies,id',
+            'company_id' => 'nullable|required_if:user_type,company_user|exists:companies,id',
         ]);
-
 
         // Start of Upload Files
         $formFileName = "photo";
         $fileFinalName_ar = "";
-        if ($request->$formFileName != "") {
-            $fileFinalName_ar = time() . rand(1111,
-                    9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
+        if ($request->hasFile($formFileName)) {
+            $fileFinalName_ar = time() . rand(1111, 9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
             $path = $this->getUploadPath();
             $request->file($formFileName)->move($path, $fileFinalName_ar);
 
-            // resize & optimize
-            Helper::imageResize($path.$fileFinalName_ar);
-            Helper::imageOptimize($path.$fileFinalName_ar);
+            // Resize & optimize
+            Helper::imageResize($path . $fileFinalName_ar);
+            Helper::imageOptimize($path . $fileFinalName_ar);
         }
         // End of Upload Files
 
-        if ($request->password != "" && $request->email != "") {
+        // Proceed if password and email are provided
+        if (!empty($request->password) && !empty($request->email)) {
             try {
+                // Create new user
                 $User = new User;
                 $User->name = $request->name;
                 $User->email = $request->email;
@@ -132,17 +136,22 @@ class UsersController extends Controller
                 $User->status = 1;
                 $User->phone = $request->phone;
                 $User->user_type = $request->user_type;
-                $User->company_id = $request->company_id;
+
+                // Set company_id based on user_type
+                $User->company_id = $request->user_type == 'company_user' ? $request->company_id : null;
+
                 $User->created_by = Auth::user()->id;
                 $User->save();
 
                 return redirect()->action('Dashboard\UsersController@index')->with('doneMessage', __('backend.addDone'));
             } catch (\Exception $e) {
-
+                // You can log the error or handle the exception as needed
             }
         }
+
         return redirect()->action('Dashboard\UsersController@index')->with('errorMessage', __('backend.error'));
     }
+
 
     public function getUploadPath()
     {
@@ -166,7 +175,7 @@ class UsersController extends Controller
         if (!@Auth::user()->permissionsGroup->settings_status && @Auth::user()->id != $id) {
             return redirect()->route('NoPermission');
         }
-        $companies = Company::where('company_status_id',2)->get();
+        $companies = Company::where('company_status_id', 2)->get();
         // General for all pages
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         // General END
@@ -178,7 +187,7 @@ class UsersController extends Controller
             $Users = User::find($id);
         }
         if (!empty($Users)) {
-            return view("dashboard.users.edit", compact("Users", "Permissions", "GeneralWebmasterSections","companies"));
+            return view("dashboard.users.edit", compact("Users", "Permissions", "GeneralWebmasterSections", "companies"));
         } else {
             return redirect()->action('Dashboard\UsersController@index');
         }
@@ -197,81 +206,103 @@ class UsersController extends Controller
         if (!@Auth::user()->permissionsGroup->settings_status && @Auth::user()->id != $id) {
             return redirect()->route('NoPermission');
         }
+
         $User = User::find($id);
         if (!empty($User)) {
-
             try {
+                // Validate the request
                 $this->validate($request, [
                     'photo' => 'image',
                     'name' => 'required',
-                    'permissions_id' => 'required'
+                    'permissions_id' => 'required',
+                    'email' => 'required|email|unique:users,email,' . $id, // Allow the same email for the current user
+                    'phone' => 'required|string|unique:users,phone,' . $id, // Allow the same phone number for the current user
+                    'user_type' => 'required|in:admin,customer,company_user',
+                    'company_id' => 'nullable|required_if:user_type,company_user|exists:companies,id',
+                ], [
+                    'photo.image' => 'The photo must be a valid image file.',
+                    'name.required' => 'Please provide the user\'s full name.',
+                    'permissions_id.required' => 'Please assign permissions to the user.',
+                    'email.required' => 'The email field is required.',
+                    'email.email' => 'Please provide a valid email address.',
+                    'email.unique' => 'This email is already in use by another user.',
+                    'phone.required' => 'The phone number is required.',
+                    'phone.string' => 'The phone number must be a valid string.',
+                    'phone.unique' => 'This phone number is already in use by another user.',
+                    'user_type.required' => 'Please select the user type.',
+                    'user_type.in' => 'The selected user type is invalid.',
+                    'company_id.required_if' => 'A company must be selected for company users.',
+                    'company_id.exists' => 'The selected company is invalid.',
                 ]);
 
-                if ($request->email != $User->email) {
-                    $this->validate($request, [
-                        'email' => 'required|email|unique:users',
-                    ]);
-                }
                 // Start of Upload Files
                 $formFileName = "photo";
                 $fileFinalName_ar = "";
-                if ($request->$formFileName != "") {
-                    $fileFinalName_ar = time() . rand(1111,
-                            9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
+                if ($request->hasFile($formFileName)) {
+                    $fileFinalName_ar = time() . rand(1111, 9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
                     $path = $this->getUploadPath();
                     $request->file($formFileName)->move($path, $fileFinalName_ar);
 
-                    // resize & optimize
-                    Helper::imageResize($path.$fileFinalName_ar);
-                    Helper::imageOptimize($path.$fileFinalName_ar);
+                    // Resize & optimize the uploaded image
+                    Helper::imageResize($path . $fileFinalName_ar);
+                    Helper::imageOptimize($path . $fileFinalName_ar);
                 }
-                // End of Upload Files
 
-                //if ($id != 1) {
+                // Update user details
                 $User->name = $request->name;
                 $User->email = $request->email;
+
+                // Only update the password if it's provided
                 if ($request->password != "") {
                     $User->password = bcrypt($request->password);
                 }
-                $User->permissions_id = $request->permissions_id;
-                //}
-                if ($request->photo_delete == 1) {
-                    // Delete a User file
-                    if ($User->photo != "") {
-                        File::delete($this->getUploadPath() . $User->photo);
-                    }
 
+                $User->permissions_id = $request->permissions_id;
+
+                // Handle file deletion and update
+                if ($request->photo_delete == 1 && $User->photo != "") {
+                    File::delete($this->getUploadPath() . $User->photo);
                     $User->photo = "";
                 }
                 if ($fileFinalName_ar != "") {
-                    // Delete a User file
                     if ($User->photo != "") {
                         File::delete($this->getUploadPath() . $User->photo);
                     }
-
                     $User->photo = $fileFinalName_ar;
                 }
 
+                // Update additional fields
                 $User->connect_email = $request->connect_email;
-                if ($request->connect_password != "") {
-                    $User->connect_password = $request->connect_password;
-                }
-
+                $User->connect_password = $request->connect_password;
                 $User->phone = $request->phone;
                 $User->user_type = $request->user_type;
-                $User->company_id = $request->company_id;
 
+                // Set company_id based on user_type
+                $User->company_id = $request->user_type == 'company_user' ? $request->company_id : null;
+
+                // Update status and updated_by fields
                 $User->status = $request->status;
                 $User->updated_by = Auth::user()->id;
+
+                // Save the user
                 $User->save();
+
                 return redirect()->action('Dashboard\UsersController@edit', $id)->with('doneMessage', __('backend.saveDone'));
             } catch (\Exception $e) {
+                // Log the error message (optional)
+                Log::error('Error updating user: ' . $e->getMessage());
 
+                // Handle the error message for the user
+                $error = Str::replaceFirst('message:', '', $e->getMessage());
+                return redirect()->action('Dashboard\UsersController@index')->with('errorMessage', $error);
             }
         }
-        return redirect()->action('Dashboard\UsersController@index');
 
+        // Return with error if user not found
+        return redirect()->action('Dashboard\UsersController@index')->with('errorMessage', __('User not found.'));
     }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -321,11 +352,9 @@ class UsersController extends Controller
             if ($request->action == "activate") {
                 User::wherein('id', $request->ids)
                     ->update(['status' => 1]);
-
             } elseif ($request->action == "block") {
                 User::wherein('id', $request->ids)->where('id', '!=', 1)
                     ->update(['status' => 0]);
-
             } elseif ($request->action == "delete") {
                 // Delete User photo
                 $Users = User::wherein('id', $request->ids)->where('id', '!=', 1)->get();
@@ -337,7 +366,6 @@ class UsersController extends Controller
 
                 User::wherein('id', $request->ids)->where('id', "!=", 1)
                     ->delete();
-
             }
         }
         return redirect()->action('Dashboard\UsersController@index')->with('doneMessage', __('backend.saveDone'));
@@ -485,8 +513,10 @@ class UsersController extends Controller
 
             $Permissions->status = $request->status;
             $Permissions->save();
-            return redirect()->action('Dashboard\UsersController@permissions_edit', $id)->with('doneMessage',
-                __('backend.saveDone'));
+            return redirect()->action('Dashboard\UsersController@permissions_edit', $id)->with(
+                'doneMessage',
+                __('backend.saveDone')
+            );
         } else {
             return redirect()->action('Dashboard\UsersController@index');
         }
@@ -570,12 +600,13 @@ class UsersController extends Controller
                 $home_links = json_encode($home_links);
                 $Permissions->home_links = $home_links;
             } catch (\Exception $e) {
-
             }
 
             $Permissions->save();
-            return redirect()->action('Dashboard\UsersController@permissions_edit', $id)->with('doneMessage',
-                __('backend.saveDone'))->with('tab', "home");
+            return redirect()->action('Dashboard\UsersController@permissions_edit', $id)->with(
+                'doneMessage',
+                __('backend.saveDone')
+            )->with('tab', "home");
         } else {
             return redirect()->action('Dashboard\UsersController@index');
         }
@@ -738,7 +769,6 @@ class UsersController extends Controller
                 $home_links = json_encode($home_links);
                 $home_links = json_decode($home_links);
             } catch (\Exception $e) {
-
             }
         }
         return view("dashboard.permissions.home.links.list", compact("Permissions", "home_links"));
@@ -779,7 +809,6 @@ class UsersController extends Controller
                     }
                 }
             } catch (\Exception $e) {
-
             }
         }
         return view("dashboard.permissions.home.links.edit", compact("home_page_button", "Permissions"));
@@ -826,7 +855,6 @@ class UsersController extends Controller
                             }
                             $home_links[] = $new_link_details;
                             $row_no++;
-
                         } else {
                             $link_details = [
                                 "btn_id" => @$saved_home_link->btn_id,
@@ -844,7 +872,6 @@ class UsersController extends Controller
                             $home_links[] = $link_details;
                             $row_no = $saved_home_link->btn_order + 1;
                         }
-
                     }
                 }
 

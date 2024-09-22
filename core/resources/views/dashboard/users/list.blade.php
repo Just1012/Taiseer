@@ -59,6 +59,7 @@
                                 <th>{{ __('backend.fullName') }}</th>
                                 <th>{{ __('backend.loginEmail') }}</th>
                                 <th>{{ __('backend.Permission') }}</th>
+                                <th>{{ ('User Type') }}</th>
                                 <th>{{ __('backend.company') }}</th>
                                 <th class="text-center" style="width:50px;">{{ __('backend.status') }}</th>
                                 <th class="text-center" style="width:200px;">{{ __('backend.options') }}</th>
@@ -88,11 +89,18 @@
                                     <td>
                                         <small>{{ @$User->permissionsGroup->name }}</small>
                                     </td>
+                                    <td>
+                                        <small>{{ @$User->user_type }}</small>
+                                    </td>
                                     <?php
-                                    if ($User->$title_var != '') {
-                                        $title = $User->company->$title_var;
+                                    if ($User->company) {
+                                        if ($User->$title_var != '') {
+                                            $title = $User->company->$title_var;
+                                        } else {
+                                            $title = $User->company->$title_var2;
+                                        }
                                     } else {
-                                        $title = $User->company->$title_var2;
+                                        $title = __('backend.noCompany'); // You can define this string in your language file
                                     }
                                     ?>
                                     <td>

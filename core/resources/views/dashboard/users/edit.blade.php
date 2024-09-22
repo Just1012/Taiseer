@@ -24,8 +24,7 @@
                 {{ Form::open(['route' => ['usersUpdate', $Users->id], 'method' => 'POST', 'files' => true]) }}
 
                 <div class="form-group row">
-                    <label for="name" class="col-sm-2 form-control-label">{!! __('backend.fullName') !!}
-                    </label>
+                    <label for="name" class="col-sm-2 form-control-label">{!! __('backend.fullName') !!}</label>
                     <div class="col-sm-10">
                         {!! Form::text('name', $Users->name, [
                             'placeholder' => '',
@@ -37,8 +36,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="email" class="col-sm-2 form-control-label">{!! __('backend.loginEmail') !!}
-                    </label>
+                    <label for="email" class="col-sm-2 form-control-label">{!! __('backend.loginEmail') !!}</label>
                     <div class="col-sm-10">
                         {!! Form::email('email', $Users->email, [
                             'placeholder' => '',
@@ -50,8 +48,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="phone" class="col-sm-2 form-control-label">{!! __('backend.phone') !!}
-                    </label>
+                    <label for="phone" class="col-sm-2 form-control-label">{!! __('backend.phone') !!}</label>
                     <div class="col-sm-10">
                         {!! Form::text('phone', $Users->phone, [
                             'placeholder' => '',
@@ -63,8 +60,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="password" class="col-sm-2 form-control-label">{!! __('backend.loginPassword') !!}
-                    </label>
+                    <label for="password" class="col-sm-2 form-control-label">{!! __('backend.loginPassword') !!}</label>
                     <div class="col-sm-10">
                         <input type="password" name="password" minlength="6" class="form-control">
                     </div>
@@ -138,6 +134,29 @@
                         </div>
                     </div>
 
+                    <!-- Company ID (conditionally visible) -->
+                    <div class="form-group row" id="company_id_section"
+                        style="{{ $Users->user_type == 'company_user' ? 'display: block;' : 'display: none;' }}">
+                        <label for="company_id" class="col-sm-2 form-control-label">{!! __('backend.Company') !!}</label>
+                        <div class="col-sm-10">
+                            <select name="company_id" id="company_id" class="form-control c-select">
+                                <option value="">- - {!! __('backend.selectCompanysType') !!} - -</option>
+                                <?php
+                                $title_var = 'name_' . @Helper::currentLanguage()->code;
+                                $title_var2 = 'name_' . config('smartend.default_language');
+                                ?>
+                                @foreach ($companies as $company)
+                                    <?php
+                                    $title = $company->$title_var != '' ? $company->$title_var : $company->$title_var2;
+                                    ?>
+                                    <option value="{{ $company->id }}"
+                                        {{ $Users->company_id == $company->id ? 'selected' : '' }}>{!! $title !!}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group row">
                         <label for="link_status" class="col-sm-2 form-control-label">{!! __('backend.status') !!}</label>
                         <div class="col-sm-10">
@@ -162,7 +181,6 @@
 
                 @endif
 
-
                 <div class="form-group row m-t-md">
                     <div class="offset-sm-2 col-sm-10">
                         <button type="submit" class="btn btn-primary m-t"><i class="material-icons">
@@ -176,4 +194,23 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript to handle dynamic visibility of company_id based on user_type -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var userTypeSelect = document.getElementById('user_type');
+            var companyIdSection = document.getElementById('company_id_section');
+
+            userTypeSelect.addEventListener('change', function() {
+                if (this.value === 'company_user') {
+                    companyIdSection.style.display = 'block'; // Show company_id section
+                } else {
+                    companyIdSection.style.display = 'none'; // Hide company_id section
+                }
+            });
+
+            // Trigger the change event on page load to set the correct visibility
+            userTypeSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
 @endsection
