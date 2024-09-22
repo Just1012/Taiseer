@@ -14,7 +14,7 @@
             <div class="box-tool">
                 <ul class="nav">
                     <li class="nav-item inline">
-                        <a class="nav-link" href="{{route("WebmasterSections")}}">
+                        <a class="nav-link" href="{{ route('WebmasterSections') }}">
                             <i class="material-icons md-18">×</i>
                         </a>
                     </li>
@@ -23,19 +23,19 @@
         </div>
 
         <?php
-        $tab_1 = "active";
-        $tab_2 = "";
-        $tab_3 = "";
+        $tab_1 = 'active';
+        $tab_2 = '';
+        $tab_3 = '';
         if (Session::has('activeTab')) {
-            if (Session::get('activeTab') == "fields") {
-                $tab_1 = "";
-                $tab_2 = "active";
-                $tab_3 = "";
+            if (Session::get('activeTab') == 'fields') {
+                $tab_1 = '';
+                $tab_2 = 'active';
+                $tab_3 = '';
             }
-            if (Session::get('activeTab') == "seo") {
-                $tab_1 = "";
-                $tab_2 = "";
-                $tab_3 = "active";
+            if (Session::get('activeTab') == 'seo') {
+                $tab_1 = '';
+                $tab_2 = '';
+                $tab_3 = 'active';
             }
         }
         ?>
@@ -49,43 +49,56 @@
                 </li>
                 <li class="nav-item inline">
                     <a class="nav-link  {{ $tab_2 }}" data-toggle="tab" data-target="#tab_custom">
-                    <span class="text-md"><i class="material-icons">
-                            &#xe30d;</i> {{ __('backend.customFields') }}</span>
+                        <span class="text-md"><i class="material-icons">
+                                &#xe30d;</i> {{ __('backend.customFields') }}</span>
                     </a>
                 </li>
-                @if(Helper::GeneralWebmasterSettings("seo_status"))
+                @if (Helper::GeneralWebmasterSettings('seo_status'))
                     <li class="nav-item inline">
                         <a class="nav-link  {{ $tab_3 }}" data-toggle="tab" data-target="#tab_seo">
-                    <span class="text-md"><i class="material-icons">
-                            &#xe8e5;</i> {{ __('backend.seoTabTitle') }}</span>
+                            <span class="text-md"><i class="material-icons">
+                                    &#xe8e5;</i> {{ __('backend.seoTabTitle') }}</span>
                         </a>
                     </li>
                 @endif
             </ul>
+          
             <div class="tab-content clear b-t">
                 <div class="tab-pane  {{ $tab_1 }}" id="tab_details">
                     <div class="box-body">
-                        {{Form::open(['route'=>['WebmasterSectionsUpdate',$WebmasterSections->id],'method'=>'POST', 'files' => true])}}
+                        {{ Form::open(['route' => ['WebmasterSectionsUpdate', $WebmasterSections->id], 'method' => 'POST', 'files' => true]) }}
 
-                        @foreach(Helper::languagesList() as $ActiveLanguage)
+                        @foreach (Helper::languagesList() as $ActiveLanguage)
                             <div class="form-group row">
-                                <label
-                                    class="col-sm-2 form-control-label">{!!  __('backend.sectionName') !!} {!! @Helper::languageName($ActiveLanguage) !!}
+                                <label class="col-sm-2 form-control-label">
+                                    {!! __('backend.sectionName') !!} {!! @Helper::languageName($ActiveLanguage) !!}
                                 </label>
                                 <div class="col-sm-10">
-                                    {!! Form::text('name_'.@$ActiveLanguage->code,$WebmasterSections->{'name_'.@$ActiveLanguage->code}, array('placeholder' => '','class' => 'form-control','required'=>'', 'dir'=>@$ActiveLanguage->direction)) !!}
+                                    {!! Form::text(
+                                        'title_' . @$ActiveLanguage->code,
+                                        old('title_' . @$ActiveLanguage->code, $WebmasterSections->{'title_' . @$ActiveLanguage->code}),
+                                        [
+                                            'placeholder' => '',
+                                            'class' => 'form-control',
+                                            'required' => '',
+                                            'dir' => @$ActiveLanguage->direction,
+                                        ],
+                                    ) !!}
                                 </div>
                             </div>
                         @endforeach
+
                         <div class="form-group row">
-                            <label for="type"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.sectionType') !!}</label>
+                            <label for="type" class="col-sm-2 form-control-label">{!! __('backend.sectionType') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio secs">
                                     <div>
                                         <label
-                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a {{ ($WebmasterSections->type==0)?"sec-active":"" }}">
-                                            {!! Form::radio('type','0',($WebmasterSections->type==0) ? true : false, array('id' => 'site_status1','class'=>'has-value')) !!}
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a {{ $WebmasterSections->type == 0 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '0', $WebmasterSections->type == 0 ? true : false, [
+                                                'id' => 'site_status1',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="fa fa-file-text-o sec-icon pull-right"></div>
                                             <strong>{{ __('backend.typeTextPages') }}</strong>
@@ -93,8 +106,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==1)?"sec-active":"" }}">
-                                            {!! Form::radio('type','1',($WebmasterSections->type==1) ? true : false, array('id' => 'site_status2','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 1 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '1', $WebmasterSections->type == 1 ? true : false, [
+                                                'id' => 'site_status2',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe41d;</div>
                                             <strong>{{ __('backend.typePhotos') }}</strong>
@@ -102,8 +119,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==2)?"sec-active":"" }}">
-                                            {!! Form::radio('type','2',($WebmasterSections->type==2) ? true : false, array('id' => 'site_status3','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 2 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '2', $WebmasterSections->type == 2 ? true : false, [
+                                                'id' => 'site_status3',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe04b;</div>
                                             <strong>{{ __('backend.typeVideos') }}</strong>
@@ -111,8 +132,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==3)?"sec-active":"" }}">
-                                            {!! Form::radio('type','3',($WebmasterSections->type==3) ? true : false, array('id' => 'site_status4','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 3 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '3', $WebmasterSections->type == 3 ? true : false, [
+                                                'id' => 'site_status4',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe3a1;</div>
                                             <strong>{{ __('backend.typeSounds') }}</strong>
@@ -120,8 +145,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==5)?"sec-active":"" }}">
-                                            {!! Form::radio('type','5',($WebmasterSections->type==5) ? true : false, array('id' => 'site_status6','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 5 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '5', $WebmasterSections->type == 5 ? true : false, [
+                                                'id' => 'site_status6',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="fa fa-table sec-icon pull-right"></div>
                                             <strong>{{ __('backend.tableView') }}</strong>
@@ -129,8 +158,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==8)?"sec-active":"" }}">
-                                            {!! Form::radio('type','8',($WebmasterSections->type==8) ? true : false, array('id' => 'site_status7','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 8 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '8', $WebmasterSections->type == 8 ? true : false, [
+                                                'id' => 'site_status7',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="fa fa-list-ul sec-icon pull-right"></div>
                                             <strong>{{ __('backend.accordionSection') }}</strong>
@@ -138,8 +171,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==4)?"sec-active":"" }}">
-                                            {!! Form::radio('type','4',($WebmasterSections->type==4) ? true : false, array('id' => 'site_status5','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 4 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '4', $WebmasterSections->type == 4 ? true : false, [
+                                                'id' => 'site_status5',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe327;</div>
                                             <strong>{{ __('backend.private') }}</strong>
@@ -147,8 +184,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==7)?"sec-active":"" }}">
-                                            {!! Form::radio('type','7',($WebmasterSections->type==7) ? true : false, array('id' => 'site_status8','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 7 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '7', $WebmasterSections->type == 7 ? true : false, [
+                                                'id' => 'site_status8',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe880;</div>
                                             <strong>{{ __('backend.private2') }}</strong>
@@ -156,8 +197,12 @@
                                         </label>
                                     </div>
                                     <div>
-                                        <label class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ ($WebmasterSections->type==4)?"sec-active":"" }}">
-                                            {!! Form::radio('type','6',($WebmasterSections->type==6) ? true : false, array('id' => 'site_status7','class'=>'has-value')) !!}
+                                        <label
+                                            class="ui-check ui-check-md p-y-sm w-100 p-x-2 b-a  {{ $WebmasterSections->type == 4 ? 'sec-active' : '' }}">
+                                            {!! Form::radio('type', '6', $WebmasterSections->type == 6 ? true : false, [
+                                                'id' => 'site_status7',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             <div class="material-icons sec-icon pull-right">&#xe31f;</div>
                                             <strong>{{ __('backend.publicForm') }}</strong>
@@ -169,26 +214,35 @@
                         </div>
                         <div class="form-group row">
                             <label for="sections_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.hasCategories') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.hasCategories') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <div>
                                         <label class="ui-check ui-check-md">
-                                            {!! Form::radio('sections_status','0',($WebmasterSections->sections_status==0) ? true : false, array('id' => 'sections_status1','class'=>'has-value')) !!}
+                                            {!! Form::radio('sections_status', '0', $WebmasterSections->sections_status == 0 ? true : false, [
+                                                'id' => 'sections_status1',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             {{ __('backend.withoutCategories') }}
                                         </label>
                                     </div>
                                     <div>
                                         <label class="ui-check ui-check-md">
-                                            {!! Form::radio('sections_status','1',($WebmasterSections->sections_status==1) ? true : false, array('id' => 'sections_status2','class'=>'has-value')) !!}
+                                            {!! Form::radio('sections_status', '1', $WebmasterSections->sections_status == 1 ? true : false, [
+                                                'id' => 'sections_status2',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             {{ __('backend.mainCategoriesOnly') }}
                                         </label>
                                     </div>
                                     <div>
                                         <label class="ui-check ui-check-md">
-                                            {!! Form::radio('sections_status','2',($WebmasterSections->sections_status==2) ? true : false, array('id' => 'sections_status3','class'=>'has-value')) !!}
+                                            {!! Form::radio('sections_status', '2', $WebmasterSections->sections_status == 2 ? true : false, [
+                                                'id' => 'sections_status3',
+                                                'class' => 'has-value',
+                                            ]) !!}
                                             <i class="dark-white"></i>
                                             {{ __('backend.mainAndSubCategories') }}
                                         </label>
@@ -200,25 +254,32 @@
 
 
                         <div class="form-group">
-                            <br/>
-                            <label><h5><i class="material-icons">&#xe1db;</i> {{ __('backend.optionalFields') }}
-                                </h5></label>
+                            <br />
+                            <label>
+                                <h5><i class="material-icons">&#xe1db;</i> {{ __('backend.optionalFields') }}
+                                </h5>
+                            </label>
                             <hr class="m-a-0">
                         </div>
 
                         <div class="form-group row">
-                            <label for="title_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.titleField') !!}</label>
+                            <label for="title_status1" class="col-sm-2 form-control-label">{!! __('backend.titleField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('title_status','1',($WebmasterSections->title_status==1) ? true : false, array('id' => 'title_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('title_status', '1', $WebmasterSections->title_status == 1 ? true : false, [
+                                            'id' => 'title_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('title_status','0',($WebmasterSections->title_status==0) ? true : false, array('id' => 'title_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('title_status', '0', $WebmasterSections->title_status == 0 ? true : false, [
+                                            'id' => 'title_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -226,18 +287,23 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="date_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.dateField') !!}</label>
+                            <label for="date_status1" class="col-sm-2 form-control-label">{!! __('backend.dateField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('date_status','1',($WebmasterSections->date_status==1) ? true : false, array('id' => 'date_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('date_status', '1', $WebmasterSections->date_status == 1 ? true : false, [
+                                            'id' => 'date_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('date_status','0',($WebmasterSections->date_status==0) ? true : false, array('id' => 'date_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('date_status', '0', $WebmasterSections->date_status == 0 ? true : false, [
+                                            'id' => 'date_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -246,17 +312,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="expire_date_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.expireDateField') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.expireDateField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('expire_date_status','1',($WebmasterSections->expire_date_status==1) ? true : false, array('id' => 'expire_date_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('expire_date_status', '1', $WebmasterSections->expire_date_status == 1 ? true : false, [
+                                            'id' => 'expire_date_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('expire_date_status','0',($WebmasterSections->expire_date_status==0) ? true : false, array('id' => 'expire_date_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('expire_date_status', '0', $WebmasterSections->expire_date_status == 0 ? true : false, [
+                                            'id' => 'expire_date_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -265,17 +337,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="longtext_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.longTextField') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.longTextField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('longtext_status','1',($WebmasterSections->longtext_status==1) ? true : false, array('id' => 'longtext_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('longtext_status', '1', $WebmasterSections->longtext_status == 1 ? true : false, [
+                                            'id' => 'longtext_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('longtext_status','0',($WebmasterSections->longtext_status==0) ? true : false, array('id' => 'longtext_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('longtext_status', '0', $WebmasterSections->longtext_status == 0 ? true : false, [
+                                            'id' => 'longtext_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -284,17 +362,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="editor_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.allowEditor') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.allowEditor') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('editor_status','1',($WebmasterSections->editor_status==1) ? true : false, array('id' => 'editor_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('editor_status', '1', $WebmasterSections->editor_status == 1 ? true : false, [
+                                            'id' => 'editor_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('editor_status','0',($WebmasterSections->editor_status==0) ? true : false, array('id' => 'editor_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('editor_status', '0', $WebmasterSections->editor_status == 0 ? true : false, [
+                                            'id' => 'editor_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -303,18 +387,23 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="case_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.caseField') !!}</label>
+                            <label for="case_status1" class="col-sm-2 form-control-label">{!! __('backend.caseField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('case_status','1',($WebmasterSections->case_status==1) ? true : false, array('id' => 'case_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('case_status', '1', $WebmasterSections->case_status == 1 ? true : false, [
+                                            'id' => 'case_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('case_status','0',($WebmasterSections->case_status==0) ? true : false, array('id' => 'case_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('case_status', '0', $WebmasterSections->case_status == 0 ? true : false, [
+                                            'id' => 'case_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -323,17 +412,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="visits_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.visitsField') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.visitsField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('visits_status','1',($WebmasterSections->visits_status==1) ? true : false, array('id' => 'visits_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('visits_status', '1', $WebmasterSections->visits_status == 1 ? true : false, [
+                                            'id' => 'visits_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('visits_status','0',($WebmasterSections->visits_status==0) ? true : false, array('id' => 'visits_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('visits_status', '0', $WebmasterSections->visits_status == 0 ? true : false, [
+                                            'id' => 'visits_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -342,17 +437,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="photo_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.photoField') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.photoField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('photo_status','1',($WebmasterSections->photo_status==1) ? true : false, array('id' => 'photo_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('photo_status', '1', $WebmasterSections->photo_status == 1 ? true : false, [
+                                            'id' => 'photo_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('photo_status','0',($WebmasterSections->photo_status==0) ? true : false, array('id' => 'photo_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('photo_status', '0', $WebmasterSections->photo_status == 0 ? true : false, [
+                                            'id' => 'photo_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -362,17 +463,23 @@
 
                         <div class="form-group row">
                             <label for="attach_file_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.attachFileField') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.attachFileField') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('attach_file_status','1',($WebmasterSections->attach_file_status==1) ? true : false, array('id' => 'attach_file_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('attach_file_status', '1', $WebmasterSections->attach_file_status == 1 ? true : false, [
+                                            'id' => 'attach_file_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('attach_file_status','0',($WebmasterSections->attach_file_status==0) ? true : false, array('id' => 'attach_file_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('attach_file_status', '0', $WebmasterSections->attach_file_status == 0 ? true : false, [
+                                            'id' => 'attach_file_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -381,17 +488,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="section_icon_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.sectionIconPicker') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.sectionIconPicker') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('section_icon_status','1',($WebmasterSections->section_icon_status==1) ? true : false, array('id' => 'section_icon_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('section_icon_status', '1', $WebmasterSections->section_icon_status == 1 ? true : false, [
+                                            'id' => 'section_icon_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('section_icon_status','0',($WebmasterSections->section_icon_status==0) ? true : false, array('id' => 'section_icon_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('section_icon_status', '0', $WebmasterSections->section_icon_status == 0 ? true : false, [
+                                            'id' => 'section_icon_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -399,18 +512,23 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="icon_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.topicsIconPicker') !!}</label>
+                            <label for="icon_status1" class="col-sm-2 form-control-label">{!! __('backend.topicsIconPicker') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('icon_status','1',($WebmasterSections->icon_status==1) ? true : false, array('id' => 'icon_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('icon_status', '1', $WebmasterSections->icon_status == 1 ? true : false, [
+                                            'id' => 'icon_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('icon_status','0',($WebmasterSections->icon_status==0) ? true : false, array('id' => 'icon_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('icon_status', '0', $WebmasterSections->icon_status == 0 ? true : false, [
+                                            'id' => 'icon_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -419,24 +537,32 @@
                         </div>
 
                         <div class="form-group">
-                            <br/>
-                            <label><h5><i class="material-icons">&#xe8d8;</i> {{ __('backend.additionalTabs') }}
-                                </h5></label>
+                            <br />
+                            <label>
+                                <h5><i class="material-icons">&#xe8d8;</i> {{ __('backend.additionalTabs') }}
+                                </h5>
+                            </label>
                             <hr class="m-a-0">
                         </div>
                         <div class="form-group row">
                             <label for="multi_images_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.additionalImages') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.additionalImages') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('multi_images_status','1',($WebmasterSections->multi_images_status==1) ? true : false, array('id' => 'multi_images_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('multi_images_status', '1', $WebmasterSections->multi_images_status == 1 ? true : false, [
+                                            'id' => 'multi_images_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('multi_images_status','0',($WebmasterSections->multi_images_status==0) ? true : false, array('id' => 'multi_images_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('multi_images_status', '0', $WebmasterSections->multi_images_status == 0 ? true : false, [
+                                            'id' => 'multi_images_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -445,17 +571,27 @@
                         </div>
                         <div class="form-group row">
                             <label for="extra_attach_file_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.additionalFiles') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.additionalFiles') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('extra_attach_file_status','1',($WebmasterSections->extra_attach_file_status==1) ? true : false, array('id' => 'extra_attach_file_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio(
+                                            'extra_attach_file_status',
+                                            '1',
+                                            $WebmasterSections->extra_attach_file_status == 1 ? true : false,
+                                            ['id' => 'extra_attach_file_status1', 'class' => 'has-value'],
+                                        ) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('extra_attach_file_status','0',($WebmasterSections->extra_attach_file_status==0) ? true : false, array('id' => 'extra_attach_file_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio(
+                                            'extra_attach_file_status',
+                                            '0',
+                                            $WebmasterSections->extra_attach_file_status == 0 ? true : false,
+                                            ['id' => 'extra_attach_file_status2', 'class' => 'has-value'],
+                                        ) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -463,18 +599,23 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="maps_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.attachGoogleMaps') !!}</label>
+                            <label for="maps_status1" class="col-sm-2 form-control-label">{!! __('backend.attachGoogleMaps') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('maps_status','1',($WebmasterSections->maps_status==1) ? true : false, array('id' => 'maps_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('maps_status', '1', $WebmasterSections->maps_status == 1 ? true : false, [
+                                            'id' => 'maps_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('maps_status','0',($WebmasterSections->maps_status==0) ? true : false, array('id' => 'maps_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('maps_status', '0', $WebmasterSections->maps_status == 0 ? true : false, [
+                                            'id' => 'maps_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -483,17 +624,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="order_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.attachOrderForm') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.attachOrderForm') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('order_status','1',($WebmasterSections->order_status==1) ? true : false, array('id' => 'order_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('order_status', '1', $WebmasterSections->order_status == 1 ? true : false, [
+                                            'id' => 'order_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('order_status','0',($WebmasterSections->order_status==0) ? true : false, array('id' => 'order_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('order_status', '0', $WebmasterSections->order_status == 0 ? true : false, [
+                                            'id' => 'order_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -502,17 +649,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="comments_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.reviewsAvailable') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.reviewsAvailable') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('comments_status','1',($WebmasterSections->comments_status==1) ? true : false, array('id' => 'comments_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('comments_status', '1', $WebmasterSections->comments_status == 1 ? true : false, [
+                                            'id' => 'comments_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('comments_status','0',($WebmasterSections->comments_status==0) ? true : false, array('id' => 'comments_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('comments_status', '0', $WebmasterSections->comments_status == 0 ? true : false, [
+                                            'id' => 'comments_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -521,17 +674,23 @@
                         </div>
                         <div class="form-group row">
                             <label for="related_status1"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.relatedTopics') !!}</label>
+                                class="col-sm-2 form-control-label">{!! __('backend.relatedTopics') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('related_status','1',($WebmasterSections->related_status==1) ? true : false, array('id' => 'related_status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('related_status', '1', $WebmasterSections->related_status == 1 ? true : false, [
+                                            'id' => 'related_status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.yes') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('related_status','0',($WebmasterSections->related_status==0) ? true : false, array('id' => 'related_status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('related_status', '0', $WebmasterSections->related_status == 0 ? true : false, [
+                                            'id' => 'related_status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.no') }}
                                     </label>
@@ -539,24 +698,31 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br/>
-                            <label><h5><i class="material-icons">&#xe8ac;</i> {{ __('backend.active_disable') }}
-                                </h5></label>
+                            <br />
+                            <label>
+                                <h5><i class="material-icons">&#xe8ac;</i> {{ __('backend.active_disable') }}
+                                </h5>
+                            </label>
                             <hr class="m-a-0">
                         </div>
                         <div class="form-group row">
-                            <label for="link_status"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.status') !!}</label>
+                            <label for="link_status" class="col-sm-2 form-control-label">{!! __('backend.status') !!}</label>
                             <div class="col-sm-10">
                                 <div class="radio">
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('status','1',($WebmasterSections->status==1) ? true : false, array('id' => 'status1','class'=>'has-value')) !!}
+                                        {!! Form::radio('status', '1', $WebmasterSections->status == 1 ? true : false, [
+                                            'id' => 'status1',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.active') }}
                                     </label>
                                     &nbsp; &nbsp;
                                     <label class="ui-check ui-check-md">
-                                        {!! Form::radio('status','0',($WebmasterSections->status==0) ? true : false, array('id' => 'status2','class'=>'has-value')) !!}
+                                        {!! Form::radio('status', '0', $WebmasterSections->status == 0 ? true : false, [
+                                            'id' => 'status2',
+                                            'class' => 'has-value',
+                                        ]) !!}
                                         <i class="dark-white"></i>
                                         {{ __('backend.notActive') }}
                                     </label>
@@ -566,35 +732,34 @@
 
 
                         <div class="form-group row">
-                            <label for="photo"
-                                   class="col-sm-2 form-control-label">{!!  __('backend.coverPhoto') !!}</label>
+                            <label for="photo" class="col-sm-2 form-control-label">{!! __('backend.coverPhoto') !!}</label>
                             <div class="col-sm-10">
-                                @if($WebmasterSections->photo!="")
+                                @if ($WebmasterSections->photo != '')
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <div id="section_photo" class="col-sm-4 box p-a-xs">
                                                 <a target="_blank"
-                                                   href="{{ asset('uploads/topics/'.$WebmasterSections->photo) }}"><img
-                                                        src="{{ asset('uploads/topics/'.$WebmasterSections->photo) }}"
+                                                    href="{{ asset('uploads/topics/' . $WebmasterSections->photo) }}"><img
+                                                        src="{{ asset('uploads/topics/' . $WebmasterSections->photo) }}"
                                                         class="img-responsive">
                                                     {{ $WebmasterSections->photo }}
                                                 </a>
                                                 <br>
                                                 <a onclick="document.getElementById('section_photo').style.display='none';document.getElementById('photo_delete').value='1';document.getElementById('undo').style.display='block';"
-                                                   class="btn btn-sm btn-default">{!!  __('backend.delete') !!}</a>
+                                                    class="btn btn-sm btn-default">{!! __('backend.delete') !!}</a>
                                             </div>
                                             <div id="undo" class="col-sm-4 p-a-xs" style="display: none">
-                                                <a onclick="document.getElementById('section_photo').style.display='block';document.getElementById('photo_delete').value='0';document.getElementById('undo').style.display='none';">
+                                                <a
+                                                    onclick="document.getElementById('section_photo').style.display='block';document.getElementById('photo_delete').value='0';document.getElementById('undo').style.display='none';">
                                                     <i class="material-icons">
-                                                        &#xe166;</i> {!!  __('backend.undoDelete') !!}</a>
+                                                        &#xe166;</i> {!! __('backend.undoDelete') !!}</a>
                                             </div>
 
-                                            {!! Form::hidden('photo_delete','0', array('id'=>'photo_delete')) !!}
+                                            {!! Form::hidden('photo_delete', '0', ['id' => 'photo_delete']) !!}
                                         </div>
                                     </div>
-
                                 @endif
-                                {!! Form::file('photo', array('class' => 'form-control','id'=>'photo','accept'=>'image/*')) !!}
+                                {!! Form::file('photo', ['class' => 'form-control', 'id' => 'photo', 'accept' => 'image/*']) !!}
                             </div>
                         </div>
 
@@ -602,7 +767,7 @@
                             <div class="offset-sm-2 col-sm-10">
                                 <small>
                                     <i class="material-icons">&#xe8fd;</i>
-                                    {!!  __('backend.imagesTypes') !!}
+                                    {!! __('backend.imagesTypes') !!}
                                 </small>
                             </div>
                         </div>
@@ -611,17 +776,17 @@
                             <div class="col-sm-12">
                                 <button type="submit" class="btn btn-primary m-t"><i class="material-icons">
                                         &#xe31b;</i> {!! __('backend.update') !!}</button>
-                                <a href="{{route("WebmasterSections")}}"
-                                   class="btn btn-default m-t"><i class="material-icons">
+                                <a href="{{ route('WebmasterSections') }}" class="btn btn-default m-t"><i
+                                        class="material-icons">
                                         &#xe5cd;</i> {!! __('backend.cancel') !!}</a>
                             </div>
                         </div>
 
-                        {{Form::close()}}
+                        {{ Form::close() }}
                     </div>
                 </div>
 
-                {{-- Custom Fields--}}
+                {{-- Custom Fields --}}
                 <div class="tab-pane  {{ $tab_2 }}" id="tab_custom">
                     <div class="box-body">
                         @if (Session::has('fieldST'))
@@ -640,20 +805,19 @@
         </div>
     </div>
 @endsection
-@push("after-scripts")
+@push('after-scripts')
     <script type="text/javascript">
-
-        $(".secs input[type='radio']").click(function () {
+        $(".secs input[type='radio']").click(function() {
             $("label").removeClass("sec-active");
             if ($(this).is(":checked")) {
                 $(this).parent().addClass("sec-active");
             }
         });
-        $("#checkAll4").click(function () {
+        $("#checkAll4").click(function() {
             $('input:checkbox').not(this).prop('checked', this.checked);
         });
 
-        $("#action4").change(function () {
+        $("#action4").change(function() {
             if (this.value == "delete") {
                 $("#submit_all4").css("display", "none");
                 $("#submit_show_msg4").css("display", "inline-block");
@@ -662,7 +826,7 @@
                 $("#submit_show_msg4").css("display", "none");
             }
         });
-        $("input:radio[name=type]").click(function () {
+        $("input:radio[name=type]").click(function() {
             if ($(this).val() == 6 || $(this).val() == 7 || $(this).val() == 13) {
                 $("#options").css("display", "inline");
                 $(".in_statics_div").show();

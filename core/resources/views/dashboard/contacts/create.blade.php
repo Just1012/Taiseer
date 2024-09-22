@@ -76,8 +76,8 @@
                                         <option value="">- - {!!  __('backend.country') !!} - -
                                         </option>
                                         <?php
-                                        $title_var = "title_" . @Helper::currentLanguage()->code;
-                                        $title_var2 = "title_" . config('smartend.default_language');
+                                        $title_var = "name_" . @Helper::currentLanguage()->code;
+                                        $title_var2 = "name_" . config('smartend.default_language');
                                         ?>
                                         @foreach ($Countries as $country)
                                             <?php

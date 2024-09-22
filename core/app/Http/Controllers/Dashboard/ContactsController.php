@@ -52,42 +52,66 @@ class ContactsController extends Controller
         }
 
         //List of Countries
-        $Countries = Country::orderby('title_' . @Helper::currentLanguage()->code, 'asc')->get();
+        $Countries = Country::orderby('name_' . @Helper::currentLanguage()->code, 'asc')->get();
+
 
         if (@Auth::user()->permissionsGroup->view_status) {
             if ($group_id > 0) {
                 //List of group contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where('group_id', '=',
-                    $group_id)->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where(
+                    'group_id',
+                    '=',
+                    $group_id
+                )->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } elseif ($group_id == "wait") {
                 //List waiting activation Contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                    '0')->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where(
+                    'status',
+                    '=',
+                    '0'
+                )->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } elseif ($group_id == "blocked") {
                 //List waiting activation Contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                    '2')->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where(
+                    'status',
+                    '=',
+                    '2'
+                )->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } else {
                 //List of all contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             }
         } else {
             if ($group_id > 0) {
                 //List of group contacts
-                $Contacts = Contact::where('group_id', '=', (int)$group_id)->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('group_id', '=', (int)$group_id)->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } elseif ($group_id == "wait") {
                 //List waiting activation Contacts
-                $Contacts = Contact::where('status', '=', '0')->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('status', '=', '0')->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } elseif ($group_id == "blocked") {
                 //List waiting activation Contacts
-                $Contacts = Contact::where('status', '=', '2')->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('status', '=', '2')->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             } else {
                 //List of all contacts
                 $Contacts = Contact::orderby('id', 'desc')->paginate(config('smartend.backend_pagination'));
@@ -96,12 +120,18 @@ class ContactsController extends Controller
 
         if (@Auth::user()->permissionsGroup->view_status) {
             //Count of waiting activation Contacts
-            $WaitContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                '0')->count();
+            $WaitContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where(
+                'status',
+                '=',
+                '0'
+            )->count();
 
             //Count of Blocked Contacts
-            $BlockedContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                '2')->count();
+            $BlockedContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where(
+                'status',
+                '=',
+                '2'
+            )->count();
 
             //Count of All Contacts
             $AllContactsCount = Contact::where('created_by', '=', Auth::user()->id)->count();
@@ -119,9 +149,20 @@ class ContactsController extends Controller
 
         $search_word = "";
 
-        return view("dashboard.contacts.list",
-            compact("Contacts", "GeneralWebmasterSections", "ContactsGroups", "Countries", "WaitContactsCount",
-                "BlockedContactsCount", "AllContactsCount", "group_id", "search_word"));
+        return view(
+            "dashboard.contacts.list",
+            compact(
+                "Contacts",
+                "GeneralWebmasterSections",
+                "ContactsGroups",
+                "Countries",
+                "WaitContactsCount",
+                "BlockedContactsCount",
+                "AllContactsCount",
+                "group_id",
+                "search_word"
+            )
+        );
     }
 
     /**
@@ -150,8 +191,11 @@ class ContactsController extends Controller
         if (@Auth::user()->permissionsGroup->view_status) {
             if ($request->q != "") {
                 //find Contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where('first_name', 'like',
-                    '%' . $request->q . '%')
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where(
+                    'first_name',
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('last_name', 'like', '%' . $request->q . '%')
                     ->orwhere('company', 'like', '%' . $request->q . '%')
                     ->orwhere('city', 'like', '%' . $request->q . '%')
@@ -161,8 +205,10 @@ class ContactsController extends Controller
                     ->orderby('id', 'desc')->paginate(config('smartend.backend_pagination'));
             } else {
                 //List of all contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->orderby('id',
-                    'desc')->paginate(config('smartend.backend_pagination'));
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->orderby(
+                    'id',
+                    'desc'
+                )->paginate(config('smartend.backend_pagination'));
             }
         } else {
             if ($request->q != "") {
@@ -182,12 +228,18 @@ class ContactsController extends Controller
         }
         if (@Auth::user()->permissionsGroup->view_status) {
             //Count of waiting activation Contacts
-            $WaitContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                '0')->count();
+            $WaitContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where(
+                'status',
+                '=',
+                '0'
+            )->count();
 
             //Count of Blocked Contacts
-            $BlockedContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where('status', '=',
-                '2')->count();
+            $BlockedContactsCount = Contact::where('created_by', '=', Auth::user()->id)->where(
+                'status',
+                '=',
+                '2'
+            )->count();
 
             //Count of All Contacts
             $AllContactsCount = Contact::where('created_by', '=', Auth::user()->id)->count();
@@ -204,9 +256,20 @@ class ContactsController extends Controller
         $group_id = "";
         $search_word = $request->q;
 
-        return view("dashboard.contacts.list",
-            compact("Contacts", "GeneralWebmasterSections", "ContactsGroups", "Countries", "WaitContactsCount",
-                "BlockedContactsCount", "AllContactsCount", "group_id", "search_word"));
+        return view(
+            "dashboard.contacts.list",
+            compact(
+                "Contacts",
+                "GeneralWebmasterSections",
+                "ContactsGroups",
+                "Countries",
+                "WaitContactsCount",
+                "BlockedContactsCount",
+                "AllContactsCount",
+                "group_id",
+                "search_word"
+            )
+        );
     }
 
     /**
@@ -254,14 +317,16 @@ class ContactsController extends Controller
         $formFileName = "file";
         $fileFinalName_ar = "";
         if ($request->$formFileName != "") {
-            $fileFinalName_ar = time() . rand(1111,
-                    9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
+            $fileFinalName_ar = time() . rand(
+                1111,
+                9999
+            ) . '.' . $request->file($formFileName)->getClientOriginalExtension();
             $path = $this->getUploadPath();
             $request->file($formFileName)->move($path, $fileFinalName_ar);
 
             // resize & optimize
-            Helper::imageResize($path.$fileFinalName_ar);
-            Helper::imageOptimize($path.$fileFinalName_ar);
+            Helper::imageResize($path . $fileFinalName_ar);
+            Helper::imageOptimize($path . $fileFinalName_ar);
         }
         // End of Upload Files
 
@@ -307,8 +372,10 @@ class ContactsController extends Controller
         //
         $ContactToEdit = Contact::find($id);
         if (!empty($ContactToEdit)) {
-            return redirect()->action('Dashboard\ContactsController@index', $ContactToEdit->group_id)->with('ContactToEdit',
-                $ContactToEdit);
+            return redirect()->action('Dashboard\ContactsController@index', $ContactToEdit->group_id)->with(
+                'ContactToEdit',
+                $ContactToEdit
+            );
         } else {
             return redirect()->action('Dashboard\ContactsController@index');
         }
@@ -376,14 +443,16 @@ class ContactsController extends Controller
             $formFileName = "file";
             $fileFinalName_ar = "";
             if ($request->$formFileName != "") {
-                $fileFinalName_ar = time() . rand(1111,
-                        9999) . '.' . $request->file($formFileName)->getClientOriginalExtension();
+                $fileFinalName_ar = time() . rand(
+                    1111,
+                    9999
+                ) . '.' . $request->file($formFileName)->getClientOriginalExtension();
                 $path = $this->getUploadPath();
                 $request->file($formFileName)->move($path, $fileFinalName_ar);
 
                 // resize & optimize
-                Helper::imageResize($path.$fileFinalName_ar);
-                Helper::imageOptimize($path.$fileFinalName_ar);
+                Helper::imageResize($path . $fileFinalName_ar);
+                Helper::imageOptimize($path . $fileFinalName_ar);
             }
             // End of Upload Files
 
@@ -412,8 +481,10 @@ class ContactsController extends Controller
             $Contact->status = $request->status;
             $Contact->updated_by = Auth::user()->id;
             $Contact->save();
-            return redirect()->action('Dashboard\ContactsController@index')->with('ContactToEdit', $Contact)->with('doneMessage2',
-                __('backend.saveDone'));
+            return redirect()->action('Dashboard\ContactsController@index')->with('ContactToEdit', $Contact)->with(
+                'doneMessage2',
+                __('backend.saveDone')
+            );
         } else {
             return redirect()->action('Dashboard\ContactsController@index');
         }
@@ -466,7 +537,6 @@ class ContactsController extends Controller
             $Contact->delete();
         }
         return redirect()->action('Dashboard\ContactsController@index');
-
     }
 
     public function destroyGroup($id)
@@ -503,11 +573,9 @@ class ContactsController extends Controller
             if ($request->action == "activate") {
                 Contact::wherein('id', $request->ids)
                     ->update(['status' => 1]);
-
             } elseif ($request->action == "block") {
                 Contact::wherein('id', $request->ids)
                     ->update(['status' => 0]);
-
             } elseif ($request->action == "delete") {
                 // Check Permissions
                 if (!@Auth::user()->permissionsGroup->delete_status) {
@@ -523,11 +591,8 @@ class ContactsController extends Controller
 
                 Contact::wherein('id', $request->ids)
                     ->delete();
-
             }
         }
         return redirect()->action('Dashboard\ContactsController@index')->with('doneMessage', __('backend.saveDone'));
     }
-
-
 }

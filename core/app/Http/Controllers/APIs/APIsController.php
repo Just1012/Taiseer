@@ -401,6 +401,7 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
 
     public function section($section_id, $lang = '')
     {
+
         if ($section_id > 0) {
             // Get categories
             $WebmasterSections = WebmasterSection::where('id', $section_id)->where('status', 1)->get();

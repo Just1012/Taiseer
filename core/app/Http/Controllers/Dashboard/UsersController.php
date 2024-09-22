@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
+use App\Models\Company;
 use App\Models\Permissions;
 use App\Models\User;
 use App\Models\WebmasterSection;
@@ -46,11 +47,11 @@ class UsersController extends Controller
         // General END
 
         if (@Auth::user()->permissionsGroup->view_status) {
-            $Users = User::where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby('id',
+            $Users = User::with('company')->where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby('id',
                 'asc')->paginate(config('smartend.backend_pagination'));
             $Permissions = Permissions::where('created_by', '=', Auth::user()->id)->orderby('id', 'asc')->get();
         } else {
-            $Users = User::orderby('id', 'asc')->paginate(config('smartend.backend_pagination'));
+            $Users = User::with('company')->orderby('id', 'asc')->paginate(config('smartend.backend_pagination'));
             $Permissions = Permissions::orderby('id', 'asc')->get();
         }
         return view("dashboard.users.list", compact("Users", "Permissions", "GeneralWebmasterSections"));
@@ -67,13 +68,14 @@ class UsersController extends Controller
         if (!@Auth::user()->permissionsGroup->settings_status) {
             return redirect()->route('NoPermission');
         }
+        $companies = Company::where('company_status_id',2)->get();
 
         // General for all pages
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         // General END
         $Permissions = Permissions::orderby('id', 'asc')->get();
 
-        return view("dashboard.users.create", compact("GeneralWebmasterSections", "Permissions"));
+        return view("dashboard.users.create", compact("GeneralWebmasterSections", "Permissions", "companies"));
     }
 
     /**
@@ -84,6 +86,7 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+
         // Check Permissions
         if (!@Auth::user()->permissionsGroup->settings_status) {
             return redirect()->route('NoPermission');
@@ -94,7 +97,10 @@ class UsersController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'permissions_id' => 'required'
+            'permissions_id' => 'required',
+            'phone' =>' required|string|unique:users',
+            'user_type' => 'required|in:admin,customer,company_user',
+            'company_id' => 'required|exists:companies,id',
         ]);
 
 
@@ -124,6 +130,9 @@ class UsersController extends Controller
                 $User->connect_email = $request->connect_email;
                 $User->connect_password = $request->connect_password;
                 $User->status = 1;
+                $User->phone = $request->phone;
+                $User->user_type = $request->user_type;
+                $User->company_id = $request->company_id;
                 $User->created_by = Auth::user()->id;
                 $User->save();
 
@@ -157,6 +166,7 @@ class UsersController extends Controller
         if (!@Auth::user()->permissionsGroup->settings_status && @Auth::user()->id != $id) {
             return redirect()->route('NoPermission');
         }
+        $companies = Company::where('company_status_id',2)->get();
         // General for all pages
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         // General END
@@ -168,7 +178,7 @@ class UsersController extends Controller
             $Users = User::find($id);
         }
         if (!empty($Users)) {
-            return view("dashboard.users.edit", compact("Users", "Permissions", "GeneralWebmasterSections"));
+            return view("dashboard.users.edit", compact("Users", "Permissions", "GeneralWebmasterSections","companies"));
         } else {
             return redirect()->action('Dashboard\UsersController@index');
         }
@@ -246,6 +256,10 @@ class UsersController extends Controller
                 if ($request->connect_password != "") {
                     $User->connect_password = $request->connect_password;
                 }
+
+                $User->phone = $request->phone;
+                $User->user_type = $request->user_type;
+                $User->company_id = $request->company_id;
 
                 $User->status = $request->status;
                 $User->updated_by = Auth::user()->id;

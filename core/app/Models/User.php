@@ -29,7 +29,10 @@ class User extends Authenticatable
         'connect_password',
         'provider_id',
         'provider',
-        'access_token'
+        'access_token',
+        'phone',
+        'user_type',
+        'company_id'
     ];
 
     /**
@@ -65,5 +68,9 @@ class User extends Authenticatable
     public function permissionsGroup()
     {
         return $this->belongsTo('App\Models\Permissions', 'permissions_id');
+    }
+
+    public function company(){
+        return $this->belongsTo(Company::class,'company_id');
     }
 }

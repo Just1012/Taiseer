@@ -38,6 +38,9 @@ class Helper
         if($var == "license"||$var == "purchase_code"){
             return true;
         }
+        if($var == "api_status"){
+            return true;
+        }
         $_Loader_WebmasterSettings = session('_Loader_WebmasterSettings', []);
         if (empty($_Loader_WebmasterSettings)) {
             $_Loader_WebmasterSettings = WebmasterSetting::find(1);

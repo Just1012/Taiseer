@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\APIs\APIsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/a7a', function () {
+    return 'Hello, a7a!';
+});
+Route::get('/website/status', [APIsController::class,'website_status']);
+Route::get('/topic/maps/{topic_id}/{lang?}', [APIsController::class,'topic_maps']);
+Route::get('/section/{section_id}', 'APIsController@section');
+Route::get('/topics/{section_id}/page/{page_number?}/count/{topics_count?}/{lang?}', [APIsController::class,'topics']);
