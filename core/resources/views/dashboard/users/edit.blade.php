@@ -101,6 +101,9 @@
                     </div>
                 </div>
 
+                @php
+                    use App\Enums\UserType;
+                @endphp
                 @if (@Auth::user()->permissionsGroup->webmaster_status)
                     <div class="form-group row">
                         <label for="permissions1" class="col-sm-2 form-control-label">{!! __('backend.Permission') !!}</label>
@@ -123,11 +126,12 @@
                         <div class="col-sm-10">
                             <select name="user_type" id="user_type" class="form-control c-select" required>
                                 <option value="">- - Select User Type - -</option>
-                                <option value="admin" {!! $Users->user_type == 'admin' ? "selected='selected'" : '' !!}>Admin</option>
-                                <option value="customer" {!! $Users->user_type == 'customer' ? "selected='selected'" : '' !!}>Customer</option>
-                                <option value="company_user" {!! $Users->user_type == 'company_user' ? "selected='selected'" : '' !!}>Company User</option>
+                                @foreach (UserType::cases() as $type)
+                                    <option value="{{ $type->value }}" {!! $Users->user_type == $type->value ? "selected='selected'" : '' !!}>
+                                        {{ ucfirst(str_replace('_', ' ', $type->name)) }}
+                                    </option>
+                                @endforeach
                             </select>
-
                             @error('user_type')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror

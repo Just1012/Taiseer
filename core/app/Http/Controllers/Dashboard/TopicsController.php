@@ -9,6 +9,7 @@ use App\Mail\NotificationEmail;
 use App\Models\AttachFile;
 use App\Models\Comment;
 use App\Http\Requests;
+use App\Models\Company;
 use App\Models\Map;
 use App\Models\Photo;
 use App\Models\RelatedTopic;
@@ -561,9 +562,11 @@ class TopicsController extends Controller
                 '0'
             )->orderby('row_no', 'asc')->get();
 
+        $companies = Company::where('company_status_id',2)->get();
+
             return view(
                 "dashboard.topics.create",
-                compact("GeneralWebmasterSections", "WebmasterSection", "fatherSections")
+                compact("GeneralWebmasterSections", "WebmasterSection", "fatherSections", "companies")
             );
         }
         return redirect()->route('NotFound');
@@ -648,11 +651,19 @@ class TopicsController extends Controller
             // End of Upload Files
 
 
+            $user = Auth::user();
+
             // create new topic
             $Topic = new Topic;
 
+            if ($user->company_id != null) {
+                $Topic->company_id = $user->company_id;
+            } else {
+                $Topic->company_id = $request->company_id;
+            }
             // Save topic details
             $Topic->row_no = $next_nor_no;
+
             foreach (Helper::languagesList() as $ActiveLanguage) {
                 if ($ActiveLanguage->box_status) {
                     $Topic->{"title_" . $ActiveLanguage->code} = $request->{"title_" . $ActiveLanguage->code};

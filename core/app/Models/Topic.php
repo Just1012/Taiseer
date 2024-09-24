@@ -7,11 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
 use App\Helpers\Helper;
+use Illuminate\Support\Facades\Auth;
 
 class Topic extends Model implements Feedable
 {
     use HasFactory;
-
+    protected static function booted()
+    {
+        static::addGlobalScope('companies_data_filter', function ($query) {
+            $user = Auth::user();
+            if ($user && $user->user_type === 'company_user') {
+                // Filter for non-wholesale customers
+                $query->where('company_id', $user->company_id);
+            }
+        });
+    }
     public function toFeedItem(): FeedItem
     {
         $lang = @Helper::currentLanguage()->code;
@@ -124,7 +134,8 @@ class Topic extends Model implements Feedable
         return $this->hasMany('App\Models\TopicField', 'topic_id')->orderby('id', 'asc');
     }
 
-    public function company(){
-        return $this->belongsTo(Company::class,'company_id');
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
     }
 }

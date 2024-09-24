@@ -85,15 +85,21 @@
                     </div>
                 </div>
 
+                @php
+                    use App\Enums\UserType;
+                @endphp
                 <!-- Enum for user_type -->
                 <div class="form-group row">
                     <label for="user_type" class="col-sm-2 form-control-label">User Type</label>
                     <div class="col-sm-10">
                         <select name="user_type" id="user_type" class="form-control c-select" required>
                             <option value="">- - Select User Type - -</option>
-                            <option value="admin">Admin</option>
-                            <option value="customer">Customer</option>
-                            <option value="company_user">Company User</option>
+                            @foreach (UserType::cases() as $type)
+                                <option value="{{ $type->value }}"
+                                    {{ old('user_type') == $type->value ? 'selected' : '' }}>
+                                    {{ ucfirst(str_replace('_', ' ', $type->name)) }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('user_type')
                             <span class="text-danger">{{ $message }}</span>

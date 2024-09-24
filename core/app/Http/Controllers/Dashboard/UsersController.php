@@ -14,7 +14,8 @@ use App\Models\Permissions;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\WebmasterSection;
-
+use App\Enums\UserType;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -103,8 +104,24 @@ class UsersController extends Controller
             'password' => 'required|min:6',
             'permissions_id' => 'required',
             'phone' => 'required|string|unique:users',
-            'user_type' => 'required|in:admin,customer,company_user',
+            'user_type' => ['required', Rule::in(array_map(fn($type) => $type->value, UserType::cases()))],
             'company_id' => 'nullable|required_if:user_type,company_user|exists:companies,id',
+        ], [
+            'photo.image' => 'The photo must be a valid image file.',
+            'name.required' => 'Please provide the user\'s full name.',
+            'email.required' => 'The email field is required.',
+            'email.email' => 'Please provide a valid email address.',
+            'email.unique' => 'This email is already in use by another user.',
+            'password.required' => 'The password field is required.',
+            'password.min' => 'The password must be at least 6 characters long.',
+            'permissions_id.required' => 'Please assign permissions to the user.',
+            'phone.required' => 'The phone number is required.',
+            'phone.string' => 'The phone number must be a valid string.',
+            'phone.unique' => 'This phone number is already in use by another user.',
+            'user_type.required' => 'Please select the user type.',
+            'user_type.in' => 'The selected user type is invalid.',
+            'company_id.required_if' => 'A company must be selected for company users.',
+            'company_id.exists' => 'The selected company is invalid.',
         ]);
 
         // Start of Upload Files
@@ -217,7 +234,7 @@ class UsersController extends Controller
                     'permissions_id' => 'required',
                     'email' => 'required|email|unique:users,email,' . $id, // Allow the same email for the current user
                     'phone' => 'required|string|unique:users,phone,' . $id, // Allow the same phone number for the current user
-                    'user_type' => 'required|in:admin,customer,company_user',
+                    'user_type' => ['required', Rule::in(array_map(fn($type) => $type->value, UserType::cases()))],
                     'company_id' => 'nullable|required_if:user_type,company_user|exists:companies,id',
                 ], [
                     'photo.image' => 'The photo must be a valid image file.',

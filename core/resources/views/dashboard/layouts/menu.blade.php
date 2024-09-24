@@ -14,8 +14,14 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
         <div class="navbar navbar-md no-radius">
             <!-- brand -->
             <a class="navbar-brand" href="{{ route('adminHome') }}">
-                <img src="{{ asset('assets/dashboard/images/logo.png') }}" alt="Control">
-                <span class="hidden-folded inline">{{ __('backend.control') }}</span>
+                {{-- <img src="{{ asset('assets/dashboard/images/logo.png') }}" alt="Control"> --}}
+                @if (Helper::GeneralSiteSettings('style_logo_' . @Helper::currentLanguage()->code) != '')
+                    <img alt="{{ Helper::GeneralSiteSettings('site_title_' . @Helper::currentLanguage()->code) }}"
+                        src="{{ URL::to('uploads/settings/' . Helper::GeneralSiteSettings('style_logo_' . @Helper::currentLanguage()->code)) }}">
+                @else
+                    <img alt="{{ Helper::GeneralSiteSettings('site_title_' . @Helper::currentLanguage()->code) }}"
+                        src="{{ URL::to('uploads/settings/nologo.png') }}">
+                @endif
             </a>
             <!-- / brand -->
         </div>
@@ -37,7 +43,8 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     </li>
 
                     <li>
-                        <a href="{{ route('currency.index') }}" onclick="location.href='{{ route('currency.index') }}'">
+                        <a href="{{ route('currency.index') }}"
+                            onclick="location.href='{{ route('currency.index') }}'">
                             <span class="nav-icon">
                                 <i class="material-icons">attach_money</i>
                             </span>
@@ -55,7 +62,8 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     </li>
 
                     <li>
-                        <a href="{{ route('typeActivity.index') }}" onclick="location.href='{{ route('typeActivity.index') }}'">
+                        <a href="{{ route('typeActivity.index') }}"
+                            onclick="location.href='{{ route('typeActivity.index') }}'">
                             <span class="nav-icon">
                                 <i class="material-icons">merge_type</i>
                             </span>
@@ -347,8 +355,7 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                                     </ul>
                                 </li>
                             @else
-                                <li
-                                    {{ $GeneralWebmasterSection->id == @$WebmasterSection->id ? 'class=active' : '' }}>
+                                <li {{ $GeneralWebmasterSection->id == @$WebmasterSection->id ? 'class=active' : '' }}>
                                     <a href="{{ route('topics', $GeneralWebmasterSection->id) }}">
                                         <span class="nav-icon">
                                             <i class="material-icons">{!! $LiIcon !!}</i>

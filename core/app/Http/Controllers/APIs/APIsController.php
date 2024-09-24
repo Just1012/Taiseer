@@ -676,6 +676,7 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                     $response_details[] = [
                         'id' => $Topic->id,
                         'title' => $Topic_title,
+                        'company_id' => $Topic->company_id,
                         'details' => $Topic_details,
                         'date' => $Topic->date,
                         'video_type' => $Topic->video_type,
