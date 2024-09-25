@@ -62,6 +62,15 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     </li>
 
                     <li>
+                        <a href="{{ route('city.index') }}" onclick="location.href='{{ route('city.index') }}'">
+                            <span class="nav-icon">
+                                <i class="material-icons">map</i>
+                            </span>
+                            <span class="nav-text">{{ __('backend.city') }}</span>
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('typeActivity.index') }}"
                             onclick="location.href='{{ route('typeActivity.index') }}'">
                             <span class="nav-icon">

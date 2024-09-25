@@ -189,7 +189,7 @@
 
                 <div class="form-group row">
                     <label for="" class="col-sm-2 form-control-label"></label>
-                    <div class="col-sm-5">
+                    <div class="col-sm-3">
                         <select name="country_id[]" id="country_id" class="form-control select2" multiple>
                             <option value="0">- - {!! __('backend.country') !!} - -</option>
                             @foreach ($country as $value)
@@ -205,7 +205,24 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col-sm-3">
+                        <select name="city_id[]" id="city_id" class="form-control select2" multiple>
+                            <option value="0">- - {!! __('backend.city') !!} - -</option>
+                            @foreach ($city as $value)
+                                <?php
+                                $title_var = 'title_' . @Helper::currentLanguage()->code;
+                                $title_var2 = 'title_' . config('smartend.default_language');
+                                $typeName = $value->$title_var != '' ? $value->$title_var : $value->$title_var2;
+                                ?>
+                                <option value="{{ $value->id }}"
+                                    {{ $cities->contains('city_id', $value->id) ? 'selected' : '' }}>
+                                    {{ $typeName }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3">
                         <select name="typeActivity_id[]" id="typeActivity_id" class="form-control select2" multiple>
                             <option value="0">- - {!! __('backend.type') !!} - -</option>
                             @foreach ($typeActivity as $value)
@@ -259,17 +276,18 @@
                 allowClear: true,
                 width: '100%'
             });
+            $('#city_id').select2({
+                placeholder: '- - {!! __('backend.city') !!} - -',
+                allowClear: true,
+                width: '100%'
+            });
             // Initialize select2
             $('#typeActivity_id').select2({
                 placeholder: '- - {!! __('backend.type') !!} - -',
                 allowClear: true,
                 width: '100%'
             });
-
-
             var currentLocale = "{{ app()->getLocale() }}";
-
-
             // Initialize dynamic text areas with old values
             function initializeTextAreas() {
                 var textAreasHtml = '';
@@ -286,7 +304,6 @@
                             languageCode; // Construct the key for info based on language code
                         var value = activity[infoKey] ||
                             ''; // Fetch the value for this language if available, or default to empty
-
                         textAreasHtml += `
                     <div class="form-group row">
                         <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${languageName}</label>
@@ -301,30 +318,19 @@
                 // Insert generated HTML into the DOM
                 $('#dynamic-textareas').html(textAreasHtml);
             }
-
-
-
-
             // Call initialize function on page load
             initializeTextAreas();
-
             $(document).ready(function() {
-
                 var currentLocale = $('html').attr('lang'); // Get the current locale from the HTML tag
-
                 // Function to generate text areas based on selected types
                 function generateTextAreas(selectedTypes) {
                     // Clear previous text areas
                     $('#dynamic-textareas').empty();
-
                     // If types are selected, generate the text areas
                     if (selectedTypes && selectedTypes.length > 0) {
-
                         var textAreasHtml = '';
                         let a7aa = 0;
-
                         selectedTypes.forEach(function(typeId) {
-
                             // Find the selected option's text (name of the type) based on current locale
                             var selectedOption = $('#typeActivity_id option[value="' + typeId +
                                 '"]');
@@ -359,43 +365,36 @@
 
                                 // Generate the HTML structure for the text areas with the type name
                                 textAreasHtml += `
-                <div class="form-group row">
-                    <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in ${languageName}</label>
-                    <div class="col-sm-10">
-<textarea name="info_{{ $ActiveLanguage->code }}[]" class="form-control" dir="${direction}" placeholder="${
-        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)
-        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)["placeholder_" + languageCode]
-        : ''
-    }">${
-        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode] !=null
-        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode]
-        : ''
-    }</textarea></div>
-                </div>
-                `;
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in ${languageName}</label>
+                                            <div class="col-sm-10">
+                                                <textarea name="info_{{ $ActiveLanguage->code }}[]" class="form-control" dir="${direction}" placeholder="${
+                                                        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)
+                                                        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)["placeholder_" + languageCode]
+                                                        : ''
+                                                    }">${
+                                                        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode] !=null
+                                                        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode]: ''}
+                                                </textarea>
+                                            </div>
+                                        </div>
+                                        `;
                             @endforeach
-
                             a7aa++;
                         });
-
                         // Append the generated text areas to the DOM once
                         $('#dynamic-textareas').html(textAreasHtml);
                     }
                 }
-
                 // Initial generation of text areas based on selected types on page load
                 var initialSelectedTypes = $('#typeActivity_id').val();
                 generateTextAreas(initialSelectedTypes);
-
                 // Listen for changes in the typeActivity dropdown
                 $('#typeActivity_id').on('change', function() {
                     var selectedTypes = $(this).val();
                     generateTextAreas(selectedTypes);
                 });
-
             });
-
-
         });
     </script>
 @endpush

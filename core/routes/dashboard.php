@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CurrencyController;
@@ -367,3 +368,13 @@ Route::post('/company/store', [CompanyController::class, 'store'])->name('compan
 Route::get('/company/{company}/edit', [CompanyController::class, 'edit'])->name('company.Edit');
 Route::post('/company/{id}/update', [CompanyController::class, 'update'])->name('company.Update');
 Route::get('/status/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');
+Route::get('/getCities/{id}', [CompanyController::class, 'getCities'])->name('getCities');
+
+
+// City
+Route::get('/city', [CityController::class, 'index'])->name('city.index');
+Route::get('/city/create', [CityController::class, 'create'])->name('city.Create');
+Route::post('/city/store', [CityController::class, 'store'])->name('city.Store');
+Route::get('/city/{id}/edit', [CityController::class, 'edit'])->name('city.Edit');
+Route::post('/city/{id}/update', [CityController::class, 'update'])->name('city.Update');
+Route::get('/city/updateStatus/{id}', [CityController::class, 'updateStatus'])->name('city.updateStatus');

@@ -172,8 +172,9 @@
 
                 <div class="form-group row">
                     <label for="" class="col-sm-2 form-control-label"></label>
-                    <div class="col-sm-5">
-                        <select name="country_id[]" id="country_id" class="form-control select2" multiple>
+                    <div class="col-sm-3">
+                        <select name="country_id[]" id="country_id" onchange="toggleInput()" class="form-control select2"
+                            multiple>
                             @foreach ($country as $value)
                                 <?php
                                 $title_var = 'name_' . @Helper::currentLanguage()->code;
@@ -187,9 +188,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-sm-5">
-                        <select name="typeActivity_id[]" id="typeActivity_id" class="form-control select2" multiple>
 
+                    <div class="col-sm-3">
+                        <select name="city_id[]" id="city_id" class="form-control select2" multiple>
+
+                        </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <select name="typeActivity_id[]" id="typeActivity_id" class="form-control select2" multiple>
                             @foreach ($typeActivity as $type)
                                 <?php
                                 $title_var = 'name_' . @Helper::currentLanguage()->code;
@@ -233,6 +240,52 @@
 @push('after-scripts')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script>
+        function toggleInput() {
+            var select = document.getElementById("country_id");
+            var countryId = select.value;
+
+            var citiesContainer = $('#city_id');
+            var citiesUrl = "{{ route('getCities', ['id' => ':countryId']) }}";
+
+            // Clear the city dropdown when the country is changed
+            citiesContainer.empty();
+            citiesContainer.append('<option value="" ></option>');
+
+            // If no country is selected, exit the function
+            if (!countryId) {
+                return;
+            }
+
+            // Replace :countryId with the actual country ID
+            citiesUrl = citiesUrl.replace(':countryId', countryId);
+
+            $.ajax({
+                url: citiesUrl,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // If there are cities returned, populate the city dropdown
+                    if (data && data.length > 0) {
+                        var citiesSelect = '<option value=""></option>';
+
+                        $.each(data, function(index, city) {
+                            // Use the appropriate language based on the current locale
+                            var cityName = "{{ App::getLocale() }}" === "ar" ? city.title_ar : city
+                                .title_en;
+
+                            citiesSelect += '<option value="' + city.id + '">' + cityName + '</option>';
+                        });
+
+                        citiesContainer.append(citiesSelect);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching cities:', error);
+                }
+            });
+        }
+    </script>
     <script type="text/javascript">
         $(".secs input[type='radio']").click(function() {
             $("label").removeClass("sec-active");
@@ -245,6 +298,15 @@
         $(document).ready(function() {
             $('#country_id').select2({
                 placeholder: '- - {!! __('backend.country') !!} - -',
+                allowClear: true,
+                width: '100%' // Adjusts width within the form control
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#city_id').select2({
+                placeholder: '- - {!! __('backend.city') !!} - -',
                 allowClear: true,
                 width: '100%' // Adjusts width within the form control
             });
@@ -290,20 +352,20 @@
                             :
                             $('#typeActivity_id option[value="' + typeId + '"]').data(
                                 'name-en');
-                                 // English name
+                        // English name
 
 
                         // Loop through each language
                         @foreach (Helper::languagesList() as $ActiveLanguage)
-                        var langCode = '{{ $ActiveLanguage->code }}';
-                        var typeInfo = langCode === 'ar' ?
-                            $('#typeActivity_id option[value="' + typeId + '"]').data(
-                                'info-ar') // Arabic info
-                            :
-                            $('#typeActivity_id option[value="' + typeId + '"]').data(
-                                'info-en'); // English info
+                            var langCode = '{{ $ActiveLanguage->code }}';
+                            var typeInfo = langCode === 'ar' ?
+                                $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                    'info-ar') // Arabic info
+                                :
+                                $('#typeActivity_id option[value="' + typeId + '"]').data(
+                                    'info-en'); // English info
 
-            
+
                             var textarea = `
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in {!! @Helper::languageName($ActiveLanguage) !!}</label>

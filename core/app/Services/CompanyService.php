@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use App\Helpers\Helper; // Assuming you have a Helper class for image processing
 use App\Models\Company;
 use App\Models\CompanyActivitySelect;
+use App\Models\CompanyCity;
 use App\Models\CompanyCountry;
 use App\Models\TypeActivityCompany;
 use Illuminate\Support\Facades\DB; // Add this to your imports
@@ -39,6 +40,9 @@ class CompanyService
                 'country_id' => 'required|array',
                 'country_id.*' => 'exists:countries,id',
 
+                'city_id' => 'required|array',
+                'city_id.*' => 'exists:cities,id',
+
                 'typeActivity_id' => 'required|array',
                 'typeActivity_id.*' => 'exists:type_activities,id',
             ];
@@ -54,6 +58,7 @@ class CompanyService
                 'logo.image' => 'The logo must be an image.',
                 'logo.mimes' => 'The logo must be a file of type: jpeg, png, jpg, gif.',
                 'country_id.required' => 'At least one country must be selected.',
+                'city_id.required' => 'At least one city must be selected.',
                 'typeActivity_id.required' => 'At least one activity type must be selected.',
                 'about_*.required' => 'The about field is required in all active languages.',
             ];
@@ -123,6 +128,15 @@ class CompanyService
                 ]);
             }
 
+            // Handle city associations
+            $cities = $request->input('city_id', []);
+            foreach ($cities as $cityID) {
+                CompanyCity::create([
+                    'company_id' => $company->id,
+                    'city_id' => $cityID,
+                ]);
+            }
+
             // Handle type activities associations
             $typeActivities = $request->input('typeActivity_id', []);
 
@@ -172,6 +186,8 @@ class CompanyService
             'BL' => 'nullable|string|max:50',
             'country_id' => 'nullable|array',
             'country_id.*' => 'exists:countries,id',
+            'city_id' => 'nullable|array',
+            'city_id.*' => 'exists:cities,id',
             'typeActivity_id' => 'nullable|array',
             'typeActivity_id.*' => 'exists:type_activities,id',
             'info_ar.*' => 'nullable|string',
@@ -239,6 +255,10 @@ class CompanyService
             $countries = $request->input('country_id', []);
             $company->countries()->sync($countries); // Sync the country IDs directly
 
+            // Update city associations (sync to avoid duplicates)
+            $city = $request->input('city_id', []);
+            $company->cities()->sync($city); // Sync the city IDs directly
+
             // Update type activities associations
             $typeActivities = $request->input('typeActivity_id', []);
             foreach ($typeActivities as $index => $typeActivityID) {
@@ -264,12 +284,11 @@ class CompanyService
             DB::rollBack(); // Rollback the transaction on error
 
             // Log the error for debugging
- 
+
             // Return false and a user-friendly error message
             return response()->json(['error' => 'Failed to update company. Please try again.'], 500);
         }
     }
-
     public function getCompany()
     {
         // Placeholder for future implementation

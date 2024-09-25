@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\WebmasterSection;
 use App\Services\CompanyService;
 use App\Http\Controllers\Controller;
+use App\Models\City;
 use App\Models\CompanyStatus;
 use App\Models\Country;
 use App\Models\TypeActivity;
@@ -38,10 +39,17 @@ class CompanyController extends Controller
     {
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         $country = Country::all();
+        $city = City::all();
         $typeActivity = TypeActivity::all();
-        return view('admin.companies.create', compact('GeneralWebmasterSections', 'country', 'typeActivity'));
+        return view('admin.companies.create', compact('GeneralWebmasterSections', 'country', 'city', 'typeActivity'));
     }
 
+    public function getCities($id)
+    {
+        // Fetch cities by the selected country ID
+        $cities = City::where('country_id', $id)->get();
+        return response()->json($cities);
+    }
 
     public function store(Request $request)
     {
@@ -54,25 +62,28 @@ class CompanyController extends Controller
 
         $type = $company->typeActivityCompanies;
         $countries = $company->country;
+        $cities = $company->city;
+
         foreach ($type as $value) {
             $value->placeholder_ar    = $value->typeActivities->info_ar;
             $value->placeholder_en   = $value->typeActivities->info_en;
         }
 
         $country = Country::all();
+        $city = City::all();
         $typeActivity = TypeActivity::all();
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
-        return view('admin.companies.edit', compact('company', 'country', 'typeActivity', 'GeneralWebmasterSections', 'type', 'countries'));
+        return view('admin.companies.edit', compact('company', 'country', 'city', 'typeActivity', 'GeneralWebmasterSections', 'type', 'countries', 'cities'));
     }
 
     public function update(Request $request, $id)
-{
-    // Call the updateCompany method and pass the request and the company ID
-    $result = $this->CompanyService->updateCompany($request, $id);
+    {
+        // Call the updateCompany method and pass the request and the company ID
+        $result = $this->CompanyService->updateCompany($request, $id);
 
-    // Redirect to the company index route with a success message
-    return redirect()->route('company.index')->with('success', 'Company updated successfully!');
-}
+        // Redirect to the company index route with a success message
+        return redirect()->route('company.index')->with('success', 'Company updated successfully!');
+    }
 
 
 
