@@ -62,15 +62,16 @@ class CompanyController extends Controller
 
         $type = $company->typeActivityCompanies;
         $countries = $company->country;
+        //dd($countries);
         $cities = $company->city;
 
         foreach ($type as $value) {
             $value->placeholder_ar    = $value->typeActivities->info_ar;
             $value->placeholder_en   = $value->typeActivities->info_en;
         }
-
         $country = Country::all();
-        $city = City::all();
+        $city = City::whereIn('country_id',$company->country->pluck('country_id')->toArray())->get();
+        //dd($city);
         $typeActivity = TypeActivity::all();
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         return view('admin.companies.edit', compact('company', 'country', 'city', 'typeActivity', 'GeneralWebmasterSections', 'type', 'countries', 'cities'));
