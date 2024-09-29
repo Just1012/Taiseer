@@ -368,7 +368,7 @@ Route::post('/company/store', [CompanyController::class, 'store'])->name('compan
 Route::get('/company/{company}/edit', [CompanyController::class, 'edit'])->name('company.Edit');
 Route::post('/company/{id}/update', [CompanyController::class, 'update'])->name('company.Update');
 Route::get('/status/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');
-Route::get('/getCities/{id}', [CompanyController::class, 'getCities'])->name('getCities');
+Route::get('/getCities/{ids}', [CompanyController::class, 'getCities'])->name('getCities');
 
 
 // City

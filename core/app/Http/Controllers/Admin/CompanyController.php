@@ -29,10 +29,18 @@ class CompanyController extends Controller
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
         // General END
         if (@Auth::user()->permissionsGroup->view_status) {
-            $company = Company::where('created_by', '=', Auth::user()->id)->paginate(config('smartend.backend_pagination'));
+            $company = Company::with(['countries', 'cities', 'typeActivityCompanies.typeActivities'])
+                ->where('created_by', '=', Auth::user()->id)
+                ->paginate(config('smartend.backend_pagination'));
         } else {
-            $company = Company::paginate(config('smartend.backend_pagination'));
+            $company = Company::with(['countries', 'cities', 'typeActivityCompanies.typeActivities'])
+                ->paginate(config('smartend.backend_pagination'));
         }
+
+        // $companyDetails = Company::with(['countries','cities','typeActivityCompanies.typeActivities'])
+        // ->get();
+        // dd($companyDetails);
+
         return view('admin.companies.index', compact('company', 'GeneralWebmasterSections'));
     }
     public function create()
@@ -44,10 +52,14 @@ class CompanyController extends Controller
         return view('admin.companies.create', compact('GeneralWebmasterSections', 'country', 'city', 'typeActivity'));
     }
 
-    public function getCities($id)
+    public function getCities($ids)
     {
-        // Fetch cities by the selected country ID
-        $cities = City::where('country_id', $id)->get();
+        // Split the received IDs into an array
+        $countryIds = explode(',', $ids);
+
+        // Fetch cities for all selected countries
+        $cities = City::whereIn('country_id', $countryIds)->get();
+
         return response()->json($cities);
     }
 
@@ -70,7 +82,7 @@ class CompanyController extends Controller
             $value->placeholder_en   = $value->typeActivities->info_en;
         }
         $country = Country::all();
-        $city = City::whereIn('country_id',$company->country->pluck('country_id')->toArray())->get();
+        $city = City::whereIn('country_id', $company->country->pluck('country_id')->toArray())->get();
         //dd($city);
         $typeActivity = TypeActivity::all();
         $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();

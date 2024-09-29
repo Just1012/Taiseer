@@ -1,6 +1,31 @@
 @extends('dashboard.layouts.master')
 @section('title', __('backend.company'))
+
 @section('content')
+    <!-- Fullscreen Image CSS -->
+    <style>
+        /* Style for fullscreen container */
+        .fullscreen-image-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        /* Style for the image in fullscreen */
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+    </style>
     <div class="padding">
         @if (session('status') == 'success')
             <div id="flash-message" class="alert alert-success">
@@ -97,6 +122,14 @@
                                         </select>
                                     </td>
                                     <td class="text-center">
+                                        <button class="btn btn-sm success" data-toggle="modal"
+                                            data-target="#m-{{ $WebSection->id }}" ui-toggle-class="bounce"
+                                            ui-target="#animate">
+                                            <small>
+                                                <i class="material-icons">insert_comment</i>
+                                                {{ 'View Info' }}
+                                            </small>
+                                        </button>
                                         <a class="btn btn-sm info"
                                             href="{{ route('company.Edit', ['company' => $WebSection->id]) }}">
                                             <small><i class="material-icons">&#xe3c9;</i> {{ __('backend.edit') }}
@@ -104,6 +137,193 @@
                                         </a>
                                     </td>
                                 </tr>
+                                <!-- .modal -->
+                                <div id="m-{{ $WebSection->id }}" class="modal fade" data-backdrop="true"
+                                    style="text-align: center !important;">
+                                    <div class="modal-dialog modal-lg" id="animate">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">{{ $title }}
+                                                    {{ __('Company Information') }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body p-lg">
+                                                <!-- Row for Name and About -->
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('Company Name (EN)') }}:</h6>
+                                                        <p><strong>{{ $WebSection->name_en }}</strong></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('Company Name (AR)') }}:</h6>
+                                                        <p><strong>{{ $WebSection->name_ar }}</strong></p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('About (EN)') }}:</h6>
+                                                        <p>{{ $WebSection->about_ar }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('About (AR)') }}:</h6>
+                                                        <p>{{ $WebSection->about_ar }}</p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Contact Information -->
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('Email') }}:</h6>
+                                                        <p>{{ $WebSection->email }}</p>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('Phone Number') }}:</h6>
+                                                        <p>{{ $WebSection->code }} {{ $WebSection->phone }}</p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- License and IDs -->
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h6 class="text-muted d-inline">{{ __('Business License') }}:</h6>
+                                                        <p class="d-inline">
+                                                            {{ $WebSection->BL ? $WebSection->BL : __('Not Provided') }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Country, City, and Activities -->
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('Country') }}:</h6>
+                                                        <p>
+                                                            {{ implode(' - ', $WebSection->countries->pluck(App::getLocale() == 'ar' ? 'name_ar' : 'name_en')->toArray()) }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">{{ __('City') }}:</h6>
+                                                        <p>
+                                                            {{ implode(' - ', $WebSection->cities->pluck(App::getLocale() == 'ar' ? 'title_ar' : 'title_en')->toArray()) }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h6 class="text-muted">{{ __('Type of Activities') }}:</h6>
+                                                        <p>
+                                                            {{ implode(
+                                                                ' - ',
+                                                                $WebSection->typeActivityCompanies->map(function ($type) {
+                                                                        return App::getLocale() == 'ar' ? $type->typeActivities->name_ar : $type->typeActivities->name_en;
+                                                                    })->toArray(),
+                                                            ) }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Additional Information -->
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h6 class="text-muted">{{ __('Additional Info (EN)') }}:</h6>
+                                                        <p>
+                                                            @php
+                                                                // Get default type information
+                                                                $defuluteTypeInfArray = $WebSection->typeActivityCompanies
+                                                                    ->map(function ($type) {
+                                                                        return App::getLocale() == 'ar'
+                                                                            ? $type->typeActivities->info_ar
+                                                                            : $type->typeActivities->info_en;
+                                                                    })
+                                                                    ->toArray();
+
+                                                                // Get type info based on current locale
+                                                                $typeInfoArray = $WebSection->typeActivityCompanies
+                                                                    ->pluck(
+                                                                        App::getLocale() == 'ar'
+                                                                            ? 'info_ar'
+                                                                            : 'info_en',
+                                                                    )
+                                                                    ->toArray();
+
+                                                                // Iterate through each type info and replace null values with the default type info
+                                                                foreach ($typeInfoArray as $index => $value) {
+                                                                    if (empty($value)) {
+                                                                        $typeInfoArray[$index] =
+                                                                            $defuluteTypeInfArray[$index] ?? ''; // Replace with default if it's null or empty
+                                                                        }
+                                                                    }
+
+                                                                    // Implode the final type info array into a string
+                                                                    $typeInfo = implode(' - ', $typeInfoArray);
+                                                            @endphp
+
+
+                                                            {{ $typeInfo }}
+
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Logos and Covers -->
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <h6 class="text-muted">{{ __('BL Image') }}:</h6>
+                                                        @if ($WebSection->BL_image)
+                                                            <img src="{{ asset('uploads/companies/' . $WebSection->BL_image) }}"
+                                                                alt="BL Image" class="img-thumbnail" width="100"
+                                                                onclick="openFullScreen(this)" style="cursor: pointer;">
+                                                        @else
+                                                            <p>{{ __('Not Provided') }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <h6 class="text-muted">{{ __('ID Front Image') }}:</h6>
+                                                        @if ($WebSection->id_front_image)
+                                                            <img src="{{ asset('uploads/companies/' . $WebSection->id_front_image) }}"
+                                                                alt="ID Front" class="img-thumbnail" width="100"
+                                                                onclick="openFullScreen(this)" style="cursor: pointer;">
+                                                        @else
+                                                            <p>{{ __('Not Provided') }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <h6 class="text-muted">{{ __('Company Logo') }}:</h6>
+                                                        @if ($WebSection->logo)
+                                                            <img src="{{ asset('uploads/companies/' . $WebSection->logo) }}"
+                                                                alt="Logo" class="img-thumbnail" width="100"
+                                                                onclick="openFullScreen(this)" style="cursor: pointer;">
+                                                        @else
+                                                            <p>{{ __('Not Provided') }}</p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <h6 class="text-muted">{{ __('Cover Image') }}:</h6>
+                                                        @if ($WebSection->cover)
+                                                            <img src="{{ asset('uploads/companies/' . $WebSection->cover) }}"
+                                                                alt="Cover" class="img-thumbnail" width="100"
+                                                                onclick="openFullScreen(this)" style="cursor: pointer;">
+                                                        @else
+                                                            <p>{{ __('Not Provided') }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    <i class="material-icons">close</i> {{ __('backend.close') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- / .modal -->
                             @endforeach
 
                         </tbody>
@@ -227,5 +447,24 @@
                 }, 5000); // 5 seconds before starting to hide the message
             }
         });
+    </script>
+    <!-- Fullscreen Image Script -->
+    <script>
+        function openFullScreen(image) {
+            var fullScreenContainer = document.createElement('div');
+            fullScreenContainer.className = 'fullscreen-image-container';
+
+            var fullScreenImage = document.createElement('img');
+            fullScreenImage.src = image.src;
+            fullScreenImage.className = 'fullscreen-image';
+
+            fullScreenContainer.appendChild(fullScreenImage);
+            document.body.appendChild(fullScreenContainer);
+
+            // Close the fullscreen image on click
+            fullScreenContainer.addEventListener('click', function() {
+                document.body.removeChild(fullScreenContainer);
+            });
+        }
     </script>
 @endpush

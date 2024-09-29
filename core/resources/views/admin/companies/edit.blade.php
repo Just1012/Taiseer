@@ -272,22 +272,23 @@
     <script>
         function toggleInput() {
             var select = document.getElementById("country_id");
-            var countryId = select.value;
+            var selectedCountries = $(select).val(); // Get array of selected country IDs
 
             var citiesContainer = $('#city_id');
-            var citiesUrl = "{{ route('getCities', ['id' => ':countryId']) }}";
+            var citiesUrl = "{{ route('getCities', ['ids' => ':countryIds']) }}";
 
             // Clear the city dropdown when the country is changed
             citiesContainer.empty();
-            citiesContainer.append('<option value="" ></option>');
+            citiesContainer.append('<option value=""></option>');
 
             // If no country is selected, exit the function
-            if (!countryId) {
+            if (!selectedCountries || selectedCountries.length === 0) {
                 return;
             }
 
-            // Replace :countryId with the actual country ID
-            citiesUrl = citiesUrl.replace(':countryId', countryId);
+            // Replace :countryIds with the actual array of selected country IDs
+            var countryIds = selectedCountries.join(','); // Join the array into a string
+            citiesUrl = citiesUrl.replace(':countryIds', countryIds);
 
             $.ajax({
                 url: citiesUrl,
@@ -334,113 +335,113 @@
                 allowClear: true,
                 width: '100%'
             });
-            var currentLocale = "{{ app()->getLocale() }}";
-            // Initialize dynamic text areas with old values
+        });
+    </script>
+    {{-- Type activision & the info textarea handling --}}
+    <script>
+        $(document).ready(function() {
+            var currentLocale = "{{ app()->getLocale() }}"; // Fetch current locale
+
+            // Initialize dynamic text areas with existing values
             function initializeTextAreas() {
                 var textAreasHtml = '';
                 @foreach (Helper::languagesList() as $ActiveLanguage)
-                    // Retrieve the typeActivityCompanies for the current language
-                    var typeActivityCompanies = @json($company->typeActivityCompanies);
-                    var languageName = {!! json_encode(Helper::languageName($ActiveLanguage)) !!}; // Get the language name safely
+                    var typeActivityCompanies = @json($company->typeActivityCompanies); // Fetch typeActivityCompanies
+                    var languageName = {!! json_encode(Helper::languageName($ActiveLanguage)) !!}; // Language name
                     var languageCode = '{{ $ActiveLanguage->code }}'; // Language code
                     var direction = '{{ $ActiveLanguage->direction }}'; // Text direction
 
-                    // Construct text areas for each type activity company
+                    // Loop through each typeActivityCompany to generate the text areas
                     typeActivityCompanies.forEach(function(activity) {
-                        var infoKey = 'info_' +
-                            languageCode; // Construct the key for info based on language code
-                        var value = activity[infoKey] ||
-                            ''; // Fetch the value for this language if available, or default to empty
+                        var infoKey = 'info_' + languageCode; // Dynamically select info field
+                        var value = sanitizeText(activity[infoKey] ||
+                            ''); // Sanitize and get value or set default to empty
+
                         textAreasHtml += `
-                    <div class="form-group row">
-                        <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${languageName}</label>
-                        <div class="col-sm-10">
-                            <textarea name="info_${languageCode}[]" class="form-control" dir="${direction}" placeholder="Enter details for ${languageName}">${value}</textarea>
-                        </div>
+                <div class="form-group row" id="typeActivity-textarea-${activity.type_activity_id}">
+                    <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${languageName}</label>
+                    <div class="col-sm-10">
+                        <textarea name="info_${languageCode}[]" class="form-control" dir="${direction}" placeholder="Enter details for ${languageName}">${value}</textarea>
                     </div>
+                </div>
                 `;
                     });
                 @endforeach
-
-                // Insert generated HTML into the DOM
+                // Append generated HTML to the dynamic-textareas div
                 $('#dynamic-textareas').html(textAreasHtml);
             }
+
+            // Sanitize any potential HTML content and return plain text
+            function sanitizeText(text) {
+                var div = document.createElement('div');
+                div.innerHTML = text;
+                return div.textContent || div.innerText || "";
+            }
+
             // Call initialize function on page load
             initializeTextAreas();
-            $(document).ready(function() {
-                var currentLocale = $('html').attr('lang'); // Get the current locale from the HTML tag
-                // Function to generate text areas based on selected types
-                function generateTextAreas(selectedTypes) {
-                    // Clear previous text areas
-                    $('#dynamic-textareas').empty();
-                    // If types are selected, generate the text areas
-                    if (selectedTypes && selectedTypes.length > 0) {
-                        var textAreasHtml = '';
-                        let a7aa = 0;
-                        selectedTypes.forEach(function(typeId) {
-                            // Find the selected option's text (name of the type) based on current locale
-                            var selectedOption = $('#typeActivity_id option[value="' + typeId +
-                                '"]');
-                            var typeName = currentLocale === 'ar' ? selectedOption.data('name-ar') :
-                                selectedOption.data('name-en');
 
-                            if (!typeName) {
-                                console.error(`Type name not found for typeId: ${typeId}`);
-                                return; // Skip if type name is not found
-                            }
+            // Function to generate text areas based on selected types without removing any
+            function generateTextAreas(selectedTypes) {
+                $('#dynamic-textareas').empty();
+                selectedTypes.forEach(function(typeId) {
+                    var selectedOption = $('#typeActivity_id option[value="' + typeId + '"]');
+                    var typeName = currentLocale === 'ar' ? sanitizeText(selectedOption.data('name-ar')) :
+                        sanitizeText(selectedOption.data('name-en'));
 
-                            var typeActivityCompanies = @json($company->typeActivityCompanies);
-                            console.log(typeActivityCompanies);
-
-
-                            @foreach (Helper::languagesList() as $ActiveLanguage)
-                                var languageCode = '{{ $ActiveLanguage->code }}'; // Language code
-                                var direction =
-                                    '{{ $ActiveLanguage->direction }}'; // Text direction
-                                var languageName =
-                                    {!! json_encode(Helper::languageName($ActiveLanguage)) !!}; // Get the language name safely
-
-                                var langCode = languageCode === 'ar' ? 'info_ar' : 'info_en';
-                                var typeInfo = selectedOption.data(
-                                    langCode); // Get the info based on the language
-
-                                if (!typeInfo) {
-                                    console.warn(
-                                        `Type info not found for typeId: ${typeId}, langCode: ${langCode}`
-                                    );
-                                }
-
-                                // Generate the HTML structure for the text areas with the type name
-                                textAreasHtml += `
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in ${languageName}</label>
-                                            <div class="col-sm-10">
-                                                <textarea name="info_{{ $ActiveLanguage->code }}[]" class="form-control" dir="${direction}" placeholder="${
-                                                        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)
-                                                        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)["placeholder_" + languageCode]
-                                                        : ''
-                                                    }">${
-                                                        typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode] !=null
-                                                        ? typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode]: ''}
-                                                </textarea>
-                                            </div>
-                                        </div>
-                                        `;
-                            @endforeach
-                            a7aa++;
-                        });
-                        // Append the generated text areas to the DOM once
-                        $('#dynamic-textareas').html(textAreasHtml);
+                    if (!typeName) {
+                        console.error(`Type name not found for typeId: ${typeId}`);
+                        return; // Skip if no type name is found
                     }
-                }
-                // Initial generation of text areas based on selected types on page load
-                var initialSelectedTypes = $('#typeActivity_id').val();
-                generateTextAreas(initialSelectedTypes);
-                // Listen for changes in the typeActivity dropdown
-                $('#typeActivity_id').on('change', function() {
-                    var selectedTypes = $(this).val();
-                    generateTextAreas(selectedTypes);
+
+                    var typeActivityCompanies = @json($company->typeActivityCompanies);
+
+
+
+                    var textAreasHtml = '';
+
+                    @foreach (Helper::languagesList() as $ActiveLanguage)
+                        var languageCode = '{{ $ActiveLanguage->code }}'; // Language code
+                        var direction = '{{ $ActiveLanguage->direction }}'; // Text direction
+                        var languageName = {!! json_encode(Helper::languageName($ActiveLanguage)) !!}; // Language name
+
+                        var langCode = languageCode === 'ar' ? 'info_ar' : 'info_en';
+                        var typeInfo = sanitizeText(selectedOption.data(
+                            langCode)); // Sanitize type info based on the language
+
+                        var placeholder = sanitizeText(typeActivityCompanies.find(e => e[
+                                'type_activity_id'] == typeId) ?
+                            typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[
+                                "placeholder_" + languageCode] : '');
+                        var value = sanitizeText(typeActivityCompanies.find(e => e['type_activity_id'] ==
+                                typeId) ?
+                            typeActivityCompanies.find(e => e['type_activity_id'] == typeId)[langCode] :
+                            '');
+
+                        // Append new textarea to HTML structure, keeping track of typeActivity ID
+                        textAreasHtml += `
+                    <div class="form-group row" id="typeActivity-textarea-${typeId}">
+                        <label class="col-sm-2 form-control-label">{{ __('backend.info') }} for ${typeName} in ${languageName}</label>
+                        <div class="col-sm-10">
+                            <textarea name="info_${languageCode}[]" class="form-control" dir="${direction}" data-type-id="${typeId}" placeholder="${placeholder}">${value}</textarea>
+                        </div>
+                    </div>
+                `;
+                    @endforeach
+
+                    // Append the new text area content
+                    $('#dynamic-textareas').append(textAreasHtml);
                 });
+            }
+
+            // Initial generation of text areas based on selected types on page load
+            var initialSelectedTypes = $('#typeActivity_id').val();
+            generateTextAreas(initialSelectedTypes);
+
+            // Listen for changes in the typeActivity dropdown
+            $('#typeActivity_id').on('change', function() {
+                var selectedTypes = $(this).val();
+                generateTextAreas(selectedTypes);
             });
         });
     </script>

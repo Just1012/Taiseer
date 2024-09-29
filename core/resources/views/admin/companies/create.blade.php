@@ -243,22 +243,23 @@
     <script>
         function toggleInput() {
             var select = document.getElementById("country_id");
-            var countryId = select.value;
+            var selectedCountries = $(select).val(); // Get array of selected country IDs
 
             var citiesContainer = $('#city_id');
-            var citiesUrl = "{{ route('getCities', ['id' => ':countryId']) }}";
+            var citiesUrl = "{{ route('getCities', ['ids' => ':countryIds']) }}";
 
             // Clear the city dropdown when the country is changed
             citiesContainer.empty();
-            citiesContainer.append('<option value="" ></option>');
+            citiesContainer.append('<option value=""></option>');
 
             // If no country is selected, exit the function
-            if (!countryId) {
+            if (!selectedCountries || selectedCountries.length === 0) {
                 return;
             }
 
-            // Replace :countryId with the actual country ID
-            citiesUrl = citiesUrl.replace(':countryId', countryId);
+            // Replace :countryIds with the actual array of selected country IDs
+            var countryIds = selectedCountries.join(','); // Join the array into a string
+            citiesUrl = citiesUrl.replace(':countryIds', countryIds);
 
             $.ajax({
                 url: citiesUrl,
