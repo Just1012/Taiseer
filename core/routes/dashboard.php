@@ -382,4 +382,4 @@ Route::get('/city/updateStatus/{id}', [CityController::class, 'updateStatus'])->
 
 // Shipments
 Route::get('/shipment', [ShipmentController::class, 'index'])->name('shipment.index');
-Route::get('/shipmentStatus/{id}', [ShipmentController::class, 'updateStatus'])->name('shipment.updateStatus');
+Route::post('/shipmentStatus/{id}', [ShipmentController::class, 'updateStatus'])->name('shipment.updateStatus');

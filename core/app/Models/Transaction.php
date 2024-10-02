@@ -12,7 +12,7 @@ class Transaction extends Model
     public function shipment(){
         return $this->belongsTo(Shipment::class,'shipment_id');
     }
-    public function changedBy(){
-        return $this->belongsTo(User::class,'changed_by');
+    public function user(){
+        return $this->belongsTo(User::class,'user_id');
     }
 }

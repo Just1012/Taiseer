@@ -8,6 +8,7 @@ use App\Models\ShipmentStatusHistory;
 use App\Models\WebmasterSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ShipmentController extends Controller
 {
@@ -25,20 +26,28 @@ class ShipmentController extends Controller
         return view('admin.shipment.index', compact('shipment', 'GeneralWebmasterSections'));
     }
 
+
+
     public function updateStatus(Request $request, $id)
     {
         // Validate the incoming request
         $request->validate([
             'status' => 'required|in:new,accepted,in_transit,delivered,rejected,closed',
             'remarks' => 'nullable|string|max:255',
+            'rejection_reason' => 'nullable|string|max:255',
         ]);
 
         try {
+            // Start the transaction
+            DB::beginTransaction();
+
             // Find the shipment by its ID
             $shipment = Shipment::findOrFail($id);
 
             // Update the shipment status
             $shipment->status = $request->input('status');
+            // Update the rejection reason
+            $shipment->rejection_reason = $request->input('reason');
             $shipment->save();
 
             // Record the status change in the ShipmentStatusHistory model
@@ -47,8 +56,11 @@ class ShipmentController extends Controller
                 'status' => $shipment->status,
                 'changed_by' => auth()->user()->id, // Capture the user who made the change
                 'changed_at' => now(), // Automatically set the timestamp of status change
-                'remarks' => $request->input('remarks'), // Optional remarks
+                'remarks' => $shipment->rejection_reason, // Optional remarks
             ]);
+
+            // Commit the transaction after both operations succeed
+            DB::commit();
 
             // Set a session flash message for success
             session()->flash('status', 'success');
@@ -57,6 +69,9 @@ class ShipmentController extends Controller
             // Return a success response
             return response()->json(['status' => 'success', 'message' => 'Status updated successfully.']);
         } catch (\Exception $e) {
+            // Rollback the transaction in case of error
+            DB::rollBack();
+
             // Set a session flash message for error
             session()->flash('status', 'error');
             session()->flash('message', 'حدث خطأ ما، يرجى إعادة المحاولة');

@@ -91,24 +91,21 @@
                                     <td class="h6">{{ $WebSection->shipment_type }}</td>
                                     <!-- Status Dropdown -->
                                     <td class="text-center">
-                                        <select class="status-dropdown btn btn-info btn-sm"
-                                            data-id="{{ $WebSection->id }}">
+                                        @php
+                                            $statusColors = [];
+                                            foreach (\App\Enums\ShipmentStatus::cases() as $status) {
+                                                $statusColors[$status->value] = $status->color();
+                                            }
+                                        @endphp
 
-                                            <option value="new" {{ $WebSection->status == 'new' ? 'selected' : '' }}>New
-                                            </option>
-                                            <option value="accepted"
-                                                {{ $WebSection->status == 'accepted' ? 'selected' : '' }}>Accepted</option>
-                                            <option value="in_transit"
-                                                {{ $WebSection->status == 'in_transit' ? 'selected' : '' }}>In Transit
-                                            </option>
-                                            <option value="delivered"
-                                                {{ $WebSection->status == 'delivered' ? 'selected' : '' }}>Delivered
-                                            </option>
-                                            <option value="rejected"
-                                                {{ $WebSection->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                                            <option value="closed" {{ $WebSection->status == 'closed' ? 'selected' : '' }}>
-                                                Closed</option>
-
+                                        <select id="status-dropdown-{{ $WebSection->id }}" class="status-dropdown btn"
+                                            data-id="{{ $WebSection->id }}" onchange="changeColor(this)">
+                                            @foreach (\App\Enums\ShipmentStatus::cases() as $status)
+                                                <option value="{{ $status->value }}"
+                                                    {{ $WebSection->status == $status->value ? 'selected' : '' }}>
+                                                    {{ $status->label() }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </td>
                                     <td class="text-center">
@@ -130,12 +127,15 @@
                                                 {{ 'View Info' }}
                                             </small>
                                         </button>
-
-                                        <a class="btn btn-sm info"
-                                            href="{{ route('company.Edit', ['company' => $WebSection->id]) }}">
-                                            <small><i class="material-icons">&#xe3c9;</i> {{ __('backend.edit') }}
+                                        <button class="btn btn-sm info" data-toggle="modal"
+                                            data-target="#mt-{{ $WebSection->id }}" ui-toggle-class="bounce"
+                                            ui-target="#animate">
+                                            <small>
+                                                <i class="material-icons">attach_money</i>
                                             </small>
-                                        </a>
+                                        </button>
+
+
                                     </td>
                                 </tr>
                                 <!-- Info modal -->
@@ -257,7 +257,7 @@
                                                     </div>
                                                     @if ($WebSection->rejection_reason)
                                                         <div class="col-md-4">
-                                                            <h6 class="text-muted">{{ __('Rejection Reason') }}:</h6>
+                                                            <h6 class="text-muted">{{ __('Select Status Reason') }}:</h6>
                                                             <p class="text-danger">{{ $WebSection->rejection_reason }}</p>
                                                         </div>
                                                     @endif
@@ -276,6 +276,7 @@
                                     </div>
                                 </div>
                                 <!-- / .modal -->
+
                                 <!-- History modal -->
                                 <div id="ml-{{ $WebSection->id }}" class="modal fade" data-backdrop="true"
                                     style="text-align: center !important; text-transform: capitalize;">
@@ -329,7 +330,7 @@
                                                                 </div>
                                                                 <div class="col-md-3">
                                                                     <p>
-                                                                        {{ $history->remarks ?? __('No Remarks') }}</p>
+                                                                        {{ $history->remarks ?? __('N/A') }}</p>
                                                                 </div>
                                                             </div>
                                                             </tr>
@@ -348,11 +349,123 @@
                                     </div>
                                 </div>
                                 <!-- / .modal -->
-                            @endforeach
 
+                                <!-- Transaction modal -->
+                                <div id="mt-{{ $WebSection->id }}" class="modal fade" data-backdrop="true"
+                                    style="text-align: center !important; text-transform: capitalize;">
+                                    <div class="modal-dialog modal-lg d-flex justify-content-center align-items-center"
+                                        id="animate">
+                                        <div class="modal-content text-center">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title w-100">
+                                                    {{ __('Shipment History') }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body p-lg">
+                                                <div class="row justify-content-center">
+                                                    @php
+                                                        $transactions = App\Models\Transaction::with(
+                                                            'user',
+                                                        )
+                                                            ->where('shipment_id', $WebSection->id)
+                                                            ->get();
+                                                    @endphp
+                                                    <div class="row justify-content-center">
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('reference_no') }}</h6>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('user') }}</h6>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('amount') }}</h6>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('transaction_type') }}</h6>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('status') }}</h6>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <h6 class="text-muted">{{ __('payment_method') }}</h6>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    @if ($transactions->isNotEmpty())
+                                                        @foreach ($transactions as $transaction)
+                                                            <div class="row justify-content-center">
+                                                                <div class="col-md-2">
+                                                                    <small>{{ ucfirst($transaction->reference_no) }}
+                                                                    </small>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <p>{{ $transaction->user->name }}</p>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <p>{{ $transaction->amount }}</p>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <p>
+                                                                        {{ $transaction->transaction_type }}</p>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <p>
+                                                                        {{ $transaction->status }}</p>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <p>
+                                                                        {{ $transaction->payment_method }}</p>
+                                                                </div>
+                                                            </div>
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <p>{{ __('No shipment transactions available.') }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer justify-content-center">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    <i class="material-icons">close</i> {{ __('backend.close') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- / .modal -->
+
+                                <!-- Reason modal -->
+                                <div id="mr-{{ $WebSection->id }}" class="modal fade" data-backdrop="static">
+                                    <div class="modal-dialog modal-lg d-flex justify-content-center align-items-center"
+                                        id="animate">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title w-100">{{ __('Add Reason') }}</h5>
+                                            </div>
+                                            <div class="modal-body p-lg">
+                                                <div class="row justify-content-center">
+                                                    <div class="col-md-12 mb-2">
+                                                        <small class="text-left text-danger">*Optional</small>
+                                                        <textarea class="form-control" id="reason-textarea-{{ $WebSection->id }}" name="reason" cols="30"
+                                                            rows="10" placeholder="Add Reason"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer justify-content-center">
+                                                <button type="button" class="btn btn-primary save-changes-btn"
+                                                    data-id="{{ $WebSection->id }}">
+                                                    Save Changes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </tbody>
                     </table>
-
                 </div>
                 <footer class="dker p-a">
                     <div class="row">
@@ -428,26 +541,47 @@
         });
     </script>
     <script>
-        $(document).on('change', '.status-dropdown', function() {
-            var url = '{{ route('shipment.updateStatus', ':id') }}'; // URL for the status update
-            var shipmentId = $(this).data('id'); // The ID of the company
-            var newStatus = $(this).val(); // The new status value selected by the user
-            url = url.replace(':id', shipmentId); // Replace the placeholder in the URL with the actual company ID
+        function disableModalClose() {
+            // Prevent the modal from closing
+            return false;
+        }
+        $(document).ready(function() {
+            // Trigger the modal when the status is changed
+            $(document).on('change', '.status-dropdown', function() {
+                var shipmentId = $(this).data('id'); // Get the shipment ID from the dropdown
+                $('#mr-' + shipmentId).modal('show'); // Show the modal for adding a reason
+            });
 
-            $.ajax({
-                type: 'GET', // Sending the request as a GET (you can use POST if preferred)
-                url: url, // The route URL for updating the status
-                data: {
-                    status: newStatus // Sending the new status value
-                },
-                success: function(response) {
-                    // Refresh the page after the status update
-                    location.reload();
-                },
-                error: function(response) {
-                    // Refresh the page in case of error
-                    location.reload();
-                }
+            // Handle the Save Changes button click
+            $(document).on('click', '.save-changes-btn', function(e) {
+                e.preventDefault();
+
+                var shipmentId = $(this).data('id'); // Get the shipment ID from the button
+                var status = $('#status-dropdown-' + shipmentId).val(); // Get the current status selected
+                var reason = $('#reason-textarea-' + shipmentId).val(); // Get the reason from the textarea
+
+                var url =
+                    '{{ route('shipment.updateStatus', ':id') }}'; // The route URL for updating status
+                url = url.replace(':id', shipmentId); // Replace the placeholder with the actual shipment ID
+
+                $.ajax({
+                    type: 'POST', // Use POST request as it's updating data
+                    url: url,
+                    data: {
+                        _token: '{{ csrf_token() }}', // CSRF token for security
+                        status: status, // The new status
+                        reason: reason, // The reason provided in the textarea
+                    },
+                    success: function(response) {
+                        // Handle success (close modal, show success message, etc.)
+                        $('#mr-' + shipmentId).modal('hide'); // Close the modal
+                        location.reload(); // Optionally reload to reflect the changes
+                    },
+                    error: function(response) {
+                        // Handle error
+                        alert('An error occurred. Please try again.');
+                    }
+                });
             });
         });
     </script>
@@ -470,6 +604,29 @@
                     }, 1000); // 1 second to allow the fade-out effect
                 }, 5000); // 5 seconds before starting to hide the message
             }
+        });
+    </script>
+    <script>
+        // Pass the PHP enum colors to JavaScript as an object
+        var statusColors = @json($statusColors);
+
+        function changeColor(element) {
+            // Get the current status from the dropdown
+            var selectedStatus = element.value;
+
+            // Apply the color based on the selected status
+            var color = statusColors[selectedStatus];
+
+            // Set the background color of the dropdown
+            element.style.backgroundColor = color;
+        }
+
+        // Set the initial color based on the current status
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropdowns = document.querySelectorAll('.status-dropdown');
+            dropdowns.forEach(function(dropdown) {
+                changeColor(dropdown); // Set color on load
+            });
         });
     </script>
 @endpush
