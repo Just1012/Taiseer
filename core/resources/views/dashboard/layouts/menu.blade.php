@@ -89,6 +89,15 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ route('shipment.index') }}" onclick="location.href='{{ route('shipment.index') }}'">
+                            <span class="nav-icon">
+                                <i class="material-icons">local_shipping</i>
+                            </span>
+                            <span class="nav-text">{{ __('backend.shipment') }}</span>
+                        </a>
+                    </li>
+
                     @if (config('smartend.geoip_status'))
                         @if (Helper::GeneralWebmasterSettings('analytics_status'))
                             @if (@Auth::user()->permissionsGroup->analytics_status)

@@ -1,27 +1,28 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CurrencyController;
-use App\Http\Controllers\Admin\TypeActivityController;
-use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Dashboard\UsersController;
-use App\Http\Controllers\Dashboard\WebmasterLicenseController;
-use App\Http\Controllers\Dashboard\WebmasterSettingsController;
-use App\Http\Controllers\Dashboard\WebmasterBannersController;
-use App\Http\Controllers\Dashboard\WebmasterSectionsController;
-use App\Http\Controllers\Dashboard\SettingsController;
-use App\Http\Controllers\Dashboard\BannersController;
-use App\Http\Controllers\Dashboard\CategoriesController;
-use App\Http\Controllers\Dashboard\TopicsController;
-use App\Http\Controllers\Dashboard\ContactsController;
-use App\Http\Controllers\Dashboard\WebmailsController;
-use App\Http\Controllers\Dashboard\EventsController;
-use App\Http\Controllers\Dashboard\AnalyticsController;
+use App\Http\Controllers\Admin\ShipmentController;
 use App\Http\Controllers\Dashboard\MenusController;
+use App\Http\Controllers\Dashboard\UsersController;
+use App\Http\Controllers\Dashboard\EventsController;
+use App\Http\Controllers\Dashboard\TopicsController;
+use App\Http\Controllers\Dashboard\BannersController;
+use App\Http\Controllers\Admin\TypeActivityController;
+use App\Http\Controllers\Dashboard\ContactsController;
+use App\Http\Controllers\Dashboard\SettingsController;
+use App\Http\Controllers\Dashboard\WebmailsController;
+use App\Http\Controllers\Dashboard\AnalyticsController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\CategoriesController;
 use App\Http\Controllers\Dashboard\FileManagerController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Dashboard\WebmasterBannersController;
+use App\Http\Controllers\Dashboard\WebmasterLicenseController;
+use App\Http\Controllers\Dashboard\WebmasterSectionsController;
+use App\Http\Controllers\Dashboard\WebmasterSettingsController;
 
 
 
@@ -378,3 +379,7 @@ Route::post('/city/store', [CityController::class, 'store'])->name('city.Store')
 Route::get('/city/{id}/edit', [CityController::class, 'edit'])->name('city.Edit');
 Route::post('/city/{id}/update', [CityController::class, 'update'])->name('city.Update');
 Route::get('/city/updateStatus/{id}', [CityController::class, 'updateStatus'])->name('city.updateStatus');
+
+// Shipments
+Route::get('/shipment', [ShipmentController::class, 'index'])->name('shipment.index');
+Route::get('/shipmentStatus/{id}', [ShipmentController::class, 'updateStatus'])->name('shipment.updateStatus');

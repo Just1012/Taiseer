@@ -59,7 +59,7 @@
                                 <th>{{ __('backend.fullName') }}</th>
                                 <th>{{ __('backend.loginEmail') }}</th>
                                 <th>{{ __('backend.Permission') }}</th>
-                                <th>{{ ('User Type') }}</th>
+                                <th>{{ 'User Type' }}</th>
                                 <th>{{ __('backend.company') }}</th>
                                 <th class="text-center" style="width:50px;">{{ __('backend.status') }}</th>
                                 <th class="text-center" style="width:200px;">{{ __('backend.options') }}</th>
