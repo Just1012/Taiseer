@@ -90,7 +90,8 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     </li>
 
                     <li>
-                        <a href="{{ route('shipment.index') }}" onclick="location.href='{{ route('shipment.index') }}'">
+                        <a href="{{ route('shipment.index') }}"
+                            onclick="location.href='{{ route('shipment.index') }}'">
                             <span class="nav-icon">
                                 <i class="material-icons">local_shipping</i>
                             </span>
@@ -248,27 +249,35 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                         @endif
                     @endif
 
-                    @if (Helper::GeneralWebmasterSettings('inbox_status'))
-                        @if (@Auth::user()->permissionsGroup->inbox_status)
-                            <?php
-                            $currentFolder = 'webmails'; // Put folder name here
-                            $PathCurrentFolder = substr($urlAfterRoot, 0, strlen($currentFolder));
-                            ?>
-                            <li {{ $PathCurrentFolder == $currentFolder ? 'class=active' : '' }}>
-                                <a href="{{ route('webmails') }}">
-                                    <span class="nav-icon">
-                                        <i class="material-icons">&#xe156;</i>
-                                    </span>
-                                    <span class="nav-text">{{ __('backend.siteInbox') }}
-                                        @if (@$webmailsNewCount > 0)
-                                            <badge class="label warn m-l-xs">{{ @$webmailsNewCount }}</badge>
-                                        @endif
-                                    </span>
+                    <li>
+                        <a href="{{ route('chat.index') }}" onclick="location.href='{{ route('chat.index') }}'">
+                            <span class="nav-icon">
+                                <i class="material-icons">&#xe156;</i>
+                            </span>
+                            <span class="nav-text">{{ __('backend.siteInbox') }}</span>
+                        </a>
+                    </li>
+                    {{-- @if (Helper::GeneralWebmasterSettings('inbox_status'))
+                        @if (@Auth::user()->permissionsGroup->inbox_status) --}}
+                    <?php
+                    // $currentFolder = 'webmails'; // Put folder name here
+                    // $PathCurrentFolder = substr($urlAfterRoot, 0, strlen($currentFolder));
+                    ?>
+                    {{-- <li {{ $PathCurrentFolder == $currentFolder ? 'class=active' : '' }}>
+                         <a href="{{ route('webmails') }}">
+                             <span class="nav-icon">
+                                 <i class="material-icons">&#xe156;</i>
+                                 </span>
+                             <span class="nav-text">{{ __('backend.siteInbox') }}
+                                 @if (@$webmailsNewCount > 0)
+                                     <badge class="label warn m-l-xs">{{ @$webmailsNewCount }}</badge>
+                                     @endif
+                                 </span>
 
-                                </a>
-                            </li>
-                        @endif
-                    @endif
+                             </a>
+                         </li>
+                     @endif
+                     @endif --}}
 
                     @if (Helper::GeneralWebmasterSettings('calendar_status'))
                         @if (@Auth::user()->permissionsGroup->calendar_status)

@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ChatController;
 
 Route::middleware('auth:sanctum')->group(function () {
     // General
@@ -45,7 +46,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Shipment
     Route::post('/storeShipment', 'ShipmentController@storeShipment');
+
+    //Chat
+    Route::get('/getMessages/{id}', 'ChatController@index');
+    Route::post('/storeMessage', 'ChatController@storeMessage');
+    Route::get('/getChats', 'ChatController@getChats');
+
 });
 
-// Login Route (this does not require middleware since it handles authentication)
 Route::post('/login', 'AuthController@login');

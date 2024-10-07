@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CompanyController;
@@ -383,3 +384,19 @@ Route::get('/city/updateStatus/{id}', [CityController::class, 'updateStatus'])->
 // Shipments
 Route::get('/shipment', [ShipmentController::class, 'index'])->name('shipment.index');
 Route::post('/shipmentStatus/{id}', [ShipmentController::class, 'updateStatus'])->name('shipment.updateStatus');
+
+// Chat
+Route::get('/chat', [ChatController::class, 'getChats'])->name('chat.index');
+Route::get('chats/messages/{id}', [ChatController::class, 'fetchChatMessages'])->name('chats.fetchMessages');
+Route::post('messages', [ChatController::class, 'storeMessage'])->name('storeMessage');
+// Get all chats
+Route::get('/chats/all', [ChatController::class, 'getAllChats'])->name('chats.all');
+
+// Get chats with unread messages
+Route::get('/chats/unread', [ChatController::class, 'getUnreadChats'])->name('chats.unread');
+
+// Get chats with read messages
+Route::get('/chats/read', [ChatController::class, 'getReadChats'])->name('chats.read');
+// Route for real-time chat search
+Route::get('/search-chats', [ChatController::class, 'searchChats'])->name('searchChats');
+

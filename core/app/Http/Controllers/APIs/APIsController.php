@@ -516,7 +516,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                         'sub_categories_count' => count($SubSections),
                         'sub_categories' => $sub_response_details
                     ];
-
                 }
                 // Response MSG
                 $response = [
@@ -567,8 +566,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
             });
 
             // Get topics
-            $Topics = Topic::where([['webmaster_id', '=', $section_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['webmaster_id', '=', $section_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc');
+            $Topics = Topic::where([['webmaster_id', '=', $section_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['webmaster_id', '=', $section_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc');
 
             if ($topics_count > 0) {
                 $Topics = $Topics->paginate($topics_count);
@@ -697,7 +698,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                         ]
 
                     ];
-
                 }
                 // Response MSG
                 $response = [
@@ -867,7 +867,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                         ]
 
                     ];
-
                 }
                 // Response MSG
                 $response = [
@@ -899,8 +898,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -966,7 +967,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                                                 $line_num++;
                                             }
                                             $cf_saved_val = substr($cf_saved_val, 0, -2);
-
                                         } else {
                                             $cf_saved_val = $t_field->field_value;
                                         }
@@ -1127,7 +1127,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                         ]
 
                     ];
-
                 }
                 // Response MSG
                 $response = [
@@ -1159,8 +1158,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1203,7 +1204,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             'href' => "/topic/photo/" . $photo->id
                         ];
                     }
-
                 }
                 // Response MSG
                 $response = [
@@ -1280,8 +1280,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1340,7 +1342,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             'href' => "/topic/map/" . $map->id
                         ];
                     }
-
                 }
                 // Response MSG
                 $response = [
@@ -1431,8 +1432,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1480,7 +1483,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             'href' => "/topic/file/" . $attachFile->id
                         ];
                     }
-
                 }
 
                 // Response MSG
@@ -1567,8 +1569,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1613,7 +1617,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             'href' => "/topic/comment/" . $comment->id
                         ];
                     }
-
                 }
                 // Response MSG
                 $response = [
@@ -1690,8 +1693,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1740,7 +1745,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             'photo_file' => ($relatedTopic->topic->photo_file != "") ? url("") . "/uploads/topics/" . $relatedTopic->topic->photo_file : null,
                         ];
                     }
-
                 }
                 // Response MSG
                 $response = [
@@ -1777,8 +1781,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
         if ($topic_id > 0) {
 
             // Get topic details
-            $Topics = Topic::where([['id', '=', $topic_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
+            $Topics = Topic::where([['id', '=', $topic_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['id', '=', $topic_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc')->get();
 
             if (count($Topics) > 0) {
                 // By Language
@@ -1855,7 +1861,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                             }
                         }
                     }
-
                 }
                 // Response MSG
                 $response = [
@@ -1898,8 +1903,10 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
             });
 
             // Get topics
-            $Topics = Topic::where([['created_by', '=', $user_id], ['status',
-                1], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['created_by', '=', $user_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc');
+            $Topics = Topic::where([['created_by', '=', $user_id], [
+                'status',
+                1
+            ], ['expire_date', '>=', date("Y-m-d")], ['expire_date', '<>', null]])->orWhere([['created_by', '=', $user_id], ['status', 1], ['expire_date', null]])->orderby('row_no', 'asc');
 
             if ($topics_count > 0) {
                 $Topics = $Topics->paginate($topics_count);
@@ -2044,7 +2051,6 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
                         'section_type' => $type,
 
                     ];
-
                 }
                 // Response MSG
                 $response = [
@@ -2353,7 +2359,5 @@ For more details check <a href='http://smartfordesign.net/smartend/documentation
             ];
             return response()->json($response, 500);
         }
-
     }
-
 }
