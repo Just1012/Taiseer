@@ -26,6 +26,7 @@ class ChatService
                 return [
                     'status' => 404,
                     'message' => 'No Chats Available for You',
+                    'data' => $chats,
                 ];
             }
 

@@ -52,6 +52,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/storeMessage', 'ChatController@storeMessage');
     Route::get('/getChats', 'ChatController@getChats');
 
+    // Rating
+    Route::post('/storeRating', 'RatingController@storeRating');
+    Route::post('/getRating', 'RatingController@getRating');
+
+    // Follower
+    Route::post('/storeFollower', 'FollowerController@storeFollower');
+    Route::get('/getFollower/{companyId}', 'FollowerController@getFollower');
+
 });
 
 Route::post('/login', 'AuthController@login');
