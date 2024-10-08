@@ -64,7 +64,7 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     <li>
                         <a href="{{ route('city.index') }}" onclick="location.href='{{ route('city.index') }}'">
                             <span class="nav-icon">
-                                <i class="material-icons">map</i>
+                                <i class="material-icons">location_city</i>
                             </span>
                             <span class="nav-text">{{ __('backend.city') }}</span>
                         </a>
@@ -83,7 +83,7 @@ $mnu_title_var2 = 'title_' . config('smartend.default_language');
                     <li>
                         <a href="{{ route('company.index') }}" onclick="location.href='{{ route('company.index') }}'">
                             <span class="nav-icon">
-                                <i class="material-icons">merge_type</i>
+                                <i class="material-icons">business</i>
                             </span>
                             <span class="nav-text">{{ __('backend.company') }}</span>
                         </a>

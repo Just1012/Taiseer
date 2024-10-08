@@ -96,8 +96,6 @@
                                                 {{ __('backend.status') }}
                                             </small>
                                         </button>
-
-
                                     </td>
                                 </tr>
                                 <!-- .modal -->

@@ -716,5 +716,32 @@ return array(
     'sitemapLinks' => 'Sitemap links',
     'headerSearch' => 'Header search',
     'cookieAcceptMessage' => 'Cookies policy notification',
+    'typeActivity' => 'Activities Types',
+    'company' => ' Companies',
+    'shipment' => 'Shipments',
+    'currency' => 'Currencies',
+
+    'currencyName'=>'Currency Name',
+    'currencySymbol'=>'Currency Symbol',
+    'statusActive'=>'Status Active ',
+    'statusDeActive'=>'Status DeActive ',
+    'newCurrency'=>'New Currency',
+
+    'countryName' => 'Country Name',
+    'newCountry' => 'New Country',
+    'flag' => 'Flag',
+    'companStatus' => 'Company Status',
+    'newCompany' => 'New Company',
+    'Rating & Followers' => 'Rating & Followers',
+
+    'shipmentDescription' => 'Shipment Description',
+    'shipmentStatus' => 'Shipment Status',
+    'shipmentHistort' => 'Shipment History',
+
+    'rating' => ' Rating',
+    'rate' => 'Rate',
+    'user' => 'User ',
+    'feedback' => 'Feedback ',
+    'followers'=>'Followers'
 
 );

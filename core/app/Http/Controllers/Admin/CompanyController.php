@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\CompanyStatus;
 use App\Models\Country;
+use App\Models\Follower;
+use App\Models\Rating;
 use App\Models\TypeActivity;
 use Illuminate\Support\Facades\Auth;
 
@@ -97,10 +99,6 @@ class CompanyController extends Controller
         // Redirect to the company index route with a success message
         return redirect()->route('company.index')->with('success', 'Company updated successfully!');
     }
-
-
-
-
     public function updateStatus(Request $request, $id)
     {
         try {
@@ -141,5 +139,50 @@ class CompanyController extends Controller
             // Return an error response
             return response()->json(['status' => 'error']);
         }
+    }
+
+    public function getRating($companyId)
+    {
+        $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
+        // Fetch the company details
+        $company = Company::find($companyId);
+        // General END
+        if (@Auth::user()->permissionsGroup->view_status) {
+            $rating = Rating::with(['company', 'shipment'])
+                ->where('company_id', $companyId)
+                ->paginate(config('smartend.backend_pagination'));
+        } else {
+            $rating = Rating::with(['company', 'shipment'])
+                ->where('company_id', $companyId)
+                ->paginate(config('smartend.backend_pagination'));
+        }
+        return view('admin.companies.ratingAndFollowers', compact('company', 'rating', 'GeneralWebmasterSections'));
+    }
+
+    // get company for modal to get follower
+    public function getCompany($id)
+    {
+        // Fetch the company with followers
+        $company = Company::with('followers.user')->find($id);
+
+        if (!$company) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Company not found.'
+            ], 404);
+        }
+
+        // Return the company and followers
+        return response()->json([
+            'status' => 200,
+            'id' => $company->id,
+
+            'followers' => $company->followers->map(function ($follower) {
+                return [
+                    'user' => $follower->user,
+                    'company' => $follower->company
+                ];
+            }),
+        ]);
     }
 }

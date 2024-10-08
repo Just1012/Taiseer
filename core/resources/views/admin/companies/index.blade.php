@@ -80,6 +80,7 @@
                                 <th>{{ __('backend.companyName') }}</th>
                                 <th class="text-center">{{ __('backend.currency') }}</th>
                                 <th class="text-center">{{ __('backend.companStatus') }}</th>
+                                <th class="text-center">{{ __('backend.Rating & Followers') }}</th>
                                 <th class="text-center" style="width:200px;">{{ __('backend.options') }}</th>
                             </tr>
                         </thead>
@@ -120,6 +121,13 @@
                                                 {{ $WebSection->company_status_id == 3 ? 'selected' : '' }}>رفض</option>
 
                                         </select>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm info"
+                                            href="{{ route('getRating', ['companyId' => $WebSection->id]) }}">
+                                            <small><i class="material-icons">feedback</i> {{ __('backend.rating') }}
+                                            </small>
+                                        </a>
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm success" data-toggle="modal"
@@ -256,11 +264,11 @@
                                                                     if (empty($value)) {
                                                                         $typeInfoArray[$index] =
                                                                             $defuluteTypeInfArray[$index] ?? ''; // Replace with default if it's null or empty
-                                                                        }
-                                                                    }
+    }
+}
 
-                                                                    // Implode the final type info array into a string
-                                                                    $typeInfo = implode(' - ', $typeInfoArray);
+// Implode the final type info array into a string
+$typeInfo = implode(' - ', $typeInfoArray);
                                                             @endphp
 
 

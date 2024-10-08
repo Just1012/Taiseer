@@ -29,4 +29,8 @@ class Company extends Model
     {
         return $this->belongsToMany(City::class, 'company_cities', 'company_id', 'city_id');
     }
+    public function followers()
+    {
+        return $this->hasMany(Follower::class,);
+    }
 }
