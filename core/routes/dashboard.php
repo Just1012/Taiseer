@@ -372,7 +372,7 @@ Route::post('/company/{id}/update', [CompanyController::class, 'update'])->name(
 Route::get('/status/{id}', [CompanyController::class, 'updateStatus'])->name('company.updateStatus');
 Route::get('/getCities/{ids}', [CompanyController::class, 'getCities'])->name('getCities');
 Route::get('/getRating/{companyId}', [CompanyController::class, 'getRating'])->name('getRating');
-// get company for modal to get follower 
+// get company for modal to get follower
 Route::get('/get-company/{id}', [CompanyController::class, 'getCompany'])->name('get-company');
 
 
@@ -403,3 +403,4 @@ Route::get('/chats/unread', [ChatController::class, 'getUnreadChats'])->name('ch
 Route::get('/chats/read', [ChatController::class, 'getReadChats'])->name('chats.read');
 // Route for real-time chat search
 Route::get('/search-chats', [ChatController::class, 'searchChats'])->name('searchChats');
+

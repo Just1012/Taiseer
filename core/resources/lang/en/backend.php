@@ -742,6 +742,7 @@ return array(
     'rate' => 'Rate',
     'user' => 'User ',
     'feedback' => 'Feedback ',
-    'followers'=>'Followers'
+    'followers'=>'Followers',
+    'created_at'=>'Created At',
 
 );

@@ -122,10 +122,34 @@
 
                                         </select>
                                     </td>
-                                    <td>
-                                        <a class="btn btn-sm info"
+                                    <td class="text-center">
+                                        <a class="btn btn-sm secondry"
+                                        @php
+                                            // Calculate the average rating by summing the rate column and dividing by the count
+                                            $ratings = App\Models\Rating::where('company_id', $WebSection->id);
+                                            $totalRating = $ratings->sum('rate');
+                                            $ratingsCount = $ratings->count();
+                                            $averageRating = $ratingsCount > 0 ? $totalRating / $ratingsCount : 0;
+                                            $fullStars = floor($averageRating); // Number of full stars
+                                            $halfStar = $averageRating - $fullStars >= 0.5 ? true : false; // If there's a half star
+                                            $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0); // Remaining empty stars
+                                        @endphp
                                             href="{{ route('getRating', ['companyId' => $WebSection->id]) }}">
-                                            <small><i class="material-icons">feedback</i> {{ __('backend.rating') }}
+                                            <small>
+                                                <!-- Full Stars -->
+                                                @for ($i = 0; $i < $fullStars; $i++)
+                                                    <i class="fa fa-star text-warning"></i>
+                                                @endfor
+
+                                                <!-- Half Star -->
+                                                @if ($halfStar)
+                                                    <i class="fa fa-star-half-o text-warning"></i>
+                                                @endif
+
+                                                <!-- Empty Stars -->
+                                                @for ($i = 0; $i < $emptyStars; $i++)
+                                                    <i class="fa fa-star-o text-muted"></i>
+                                                @endfor
                                             </small>
                                         </a>
                                     </td>
@@ -264,16 +288,13 @@
                                                                     if (empty($value)) {
                                                                         $typeInfoArray[$index] =
                                                                             $defuluteTypeInfArray[$index] ?? ''; // Replace with default if it's null or empty
-    }
-}
+                                                                        }
+                                                                    }
 
-// Implode the final type info array into a string
-$typeInfo = implode(' - ', $typeInfoArray);
+                                                                    // Implode the final type info array into a string
+                                                                    $typeInfo = implode(' - ', $typeInfoArray);
                                                             @endphp
-
-
                                                             {{ $typeInfo }}
-
                                                         </p>
                                                     </div>
                                                 </div>

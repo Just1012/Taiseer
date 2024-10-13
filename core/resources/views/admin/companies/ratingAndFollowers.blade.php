@@ -55,11 +55,34 @@
                                         <thead>
                                             <tr>
                                                 <th class="text-center">User Name</th>
-                                                <th class="text-center">Company Name</th>
+                                                <th class="text-center">Company Shipment Count</th>
+                                                <th class="text-center">Total Shipment Count</th>
                                             </tr>
                                         </thead>
                                         <tbody id="followers-list">
-                                            <!-- Followers will be loaded dynamically here -->
+                                            @php
+                                                // Fetch the followers along with their user and shipment relationships
+                                                $followers = App\Models\Follower::where('company_id', $company->id)
+                                                    ->with(['user.shipment']) // Eager load shipments relationship
+                                                    ->get();
+                                            @endphp
+
+                                            @foreach ($followers as $follower)
+                                                @php
+                                                    // Count shipments related to this specific company for the user
+                                                    $companyShipmentCount = $follower->user->shipment
+                                                        ->where('company_id', $follower->company_id)
+                                                        ->count();
+
+                                                    // Count total shipments for the user
+                                                    $totalShipmentCount = $follower->user->shipment->count();
+                                                @endphp
+                                                <tr>
+                                                    <td class="text-center">{{ $follower->user->name }}</td>
+                                                    <td class="text-center">{{ $companyShipmentCount }}</td>
+                                                    <td class="text-center">{{ $totalShipmentCount }}</td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
@@ -197,42 +220,42 @@
             $('.open-modal').on('click', function() {
                 var companyId = $(this).data('target'); // Get the company ID
                 var currentLocale = "{{ app()->getLocale() }}"; // Get the current locale from Blade
+                $('#company-modal').modal('show');
+                // // Make AJAX call to fetch the followers for the company
+                // $.ajax({
+                //     url: '/admin/get-company/' + companyId, // Define your route
+                //     method: 'GET',
+                //     success: function(response) {
+                //         console.log(response);
 
-                // Make AJAX call to fetch the followers for the company
-                $.ajax({
-                    url: '/admin/get-company/' + companyId, // Define your route
-                    method: 'GET',
-                    success: function(response) {
-                        console.log(response);
+                //         // Clear the current list of followers
+                //         $('#followers-list').empty();
 
-                        // Clear the current list of followers
-                        $('#followers-list').empty();
-
-                        // Loop through the followers and append them to the table
-                        response.followers.forEach(function(follower) {
-                            // Check for the current locale and display the company name accordingly
-                            var companyName = follower.company ?
-                                (currentLocale === 'ar' ? follower.company.name_ar :
-                                    follower.company.name_en) :
-                                'N/A'; // If no company, show "N/A"
+                //         // Loop through the followers and append them to the table
+                //         response.followers.forEach(function(follower) {
+                //             // Check for the current locale and display the company name accordingly
+                //             var companyName = follower.company ?
+                //                 (currentLocale === 'ar' ? follower.company.name_ar :
+                //                     follower.company.name_en) :
+                //                 'N/A'; // If no company, show "N/A"
 
 
-                            // Append the follower data to the table
-                            $('#followers-list').append(`
-                            <tr>
-                                <td class="text-center">${follower.user.name}</td>
-                                <td class="text-center">${companyName}</td>
-                            </tr>
-                        `);
-                        });
+                //             // Append the follower data to the table
+                //             $('#followers-list').append(`
+            //             <tr>
+            //                 <td class="text-center">${follower.user.name}</td>
+            //                 <td class="text-center">${companyName}</td>
+            //             </tr>
+            //         `);
+                //         });
 
-                        // Show the modal
-                        $('#company-modal').modal('show');
-                    },
-                    error: function() {
-                        alert('Error loading company data.');
-                    }
-                });
+                //         // Show the modal
+                //         $('#company-modal').modal('show');
+                //     },
+                //     error: function() {
+                //         alert('Error loading company data.');
+                //     }
+                // });
             });
         });
     </script>

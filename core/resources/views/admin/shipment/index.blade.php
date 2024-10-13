@@ -56,9 +56,11 @@
                                 </th>
                                 <th class="text-center w-64">ID</th>
                                 <th>{{ __('backend.companyName') }}</th>
+                                <th>{{ __('backend.user') }}</th>
                                 <th class="text-center">{{ __('backend.shipmentDescription') }}</th>
+                                <th class="text-center">{{ __('backend.created_at') }}</th>
                                 <th class="text-center">{{ __('backend.shipmentStatus') }}</th>
-                                <th class="text-center">{{ __('backend.shipmentHistort') }}</th>
+
                                 <th class="text-center" style="width:200px;">{{ __('backend.options') }}</th>
                             </tr>
                         </thead>
@@ -88,7 +90,11 @@
                                     }
                                     ?>
                                     <td class="h6">{!! $title !!}</td>
+                                    <td class="h6">{{ $WebSection->user->name }}</td>
                                     <td class="h6">{{ $WebSection->shipment_type }}</td>
+                                    <td class="text-center">
+                                        {{ $WebSection->created_at->format('Y-n-j g:i a') }}
+                                    </td>
                                     <!-- Status Dropdown -->
                                     <td class="text-center">
                                         @php
@@ -108,23 +114,23 @@
                                             @endforeach
                                         </select>
                                     </td>
+
                                     <td class="text-center">
                                         <button class="btn btn-sm warning" data-toggle="modal"
                                             data-target="#ml-{{ $WebSection->id }}" ui-toggle-class="bounce"
                                             ui-target="#animate">
                                             <small>
                                                 <i class="material-icons">access_alarms</i>
-                                                {{ 'History' }}
+
                                             </small>
                                         </button>
-                                    </td>
-                                    <td class="text-center">
+
                                         <button class="btn btn-sm success" data-toggle="modal"
                                             data-target="#m-{{ $WebSection->id }}" ui-toggle-class="bounce"
                                             ui-target="#animate">
                                             <small>
                                                 <i class="material-icons">insert_comment</i>
-                                                {{ 'View Info' }}
+
                                             </small>
                                         </button>
                                         <button class="btn btn-sm info" data-toggle="modal"
@@ -367,9 +373,7 @@
                                             <div class="modal-body p-lg">
                                                 <div class="row justify-content-center">
                                                     @php
-                                                        $transactions = App\Models\Transaction::with(
-                                                            'user',
-                                                        )
+                                                        $transactions = App\Models\Transaction::with('user')
                                                             ->where('shipment_id', $WebSection->id)
                                                             ->get();
                                                     @endphp

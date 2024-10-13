@@ -8,7 +8,9 @@ use App\Models\AnalyticsVisitor;
 use App\Models\Contact;
 use App\Models\Event;
 use App\Http\Requests;
+use App\Models\Company;
 use App\Models\Section;
+use App\Models\Shipment;
 use App\Models\Topic;
 use App\Models\Webmail;
 use App\Models\WebmasterSection;
@@ -46,8 +48,11 @@ class DashboardController extends Controller
                 ->where('cat_id', '=', 0)->limit(4)->get();
 
             //List of Events
-            $Events = Event::where('created_by', '=', Auth::user()->id)->where('start_date', '>=',
-                date('Y-m-d 00:00:00'))->orderby('start_date', 'asc')->limit(5)->get();
+            $Events = Event::where('created_by', '=', Auth::user()->id)->where(
+                'start_date',
+                '>=',
+                date('Y-m-d 00:00:00')
+            )->orderby('start_date', 'asc')->limit(5)->get();
 
 
             //List of all contacts
@@ -58,8 +63,11 @@ class DashboardController extends Controller
                 ->where('cat_id', '=', 0)->limit(4)->get();
 
             //List of Events
-            $Events = Event::where('start_date', '>=',
-                date('Y-m-d 00:00:00'))->orderby('start_date', 'asc')->limit(5)->get();
+            $Events = Event::where(
+                'start_date',
+                '>=',
+                date('Y-m-d 00:00:00')
+            )->orderby('start_date', 'asc')->limit(5)->get();
 
 
             //List of all contacts
@@ -232,10 +240,24 @@ class DashboardController extends Controller
             $TodayVisitorsRate = $TodayVisitorsRate . $fsla . "[$ii,$TotalV]";
         }
 
-        return view('dashboard.home',
-            compact("GeneralWebmasterSections", "Webmails", "Events", "Contacts", "TodayVisitors", "TodayPages",
-                "Last7DaysVisitors", "TodayByCountry", "TodayByBrowser1", "TodayByBrowser1_val", "TodayByBrowser2",
-                "TodayByBrowser2_val", "TodayVisitorsRate"));
+        return view(
+            'dashboard.home',
+            compact(
+                "GeneralWebmasterSections",
+                "Webmails",
+                "Events",
+                "Contacts",
+                "TodayVisitors",
+                "TodayPages",
+                "Last7DaysVisitors",
+                "TodayByCountry",
+                "TodayByBrowser1",
+                "TodayByBrowser1_val",
+                "TodayByBrowser2",
+                "TodayByBrowser2_val",
+                "TodayVisitorsRate"
+            )
+        );
     }
 
     /**
@@ -270,8 +292,11 @@ class DashboardController extends Controller
         if ($request->q != "") {
             if (@Auth::user()->permissionsGroup->view_status) {
                 //find Contacts
-                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where('first_name', 'like',
-                    '%' . $request->q . '%')
+                $Contacts = Contact::where('created_by', '=', Auth::user()->id)->where(
+                    'first_name',
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('last_name', 'like', '%' . $request->q . '%')
                     ->orwhere('company', 'like', '%' . $request->q . '%')
                     ->orwhere('city', 'like', '%' . $request->q . '%')
@@ -281,8 +306,11 @@ class DashboardController extends Controller
                     ->orderby('id', 'desc')->get();
 
                 //find Webmails
-                $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->where('title', 'like',
-                    '%' . $request->q . '%')
+                $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->where(
+                    'title',
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('from_name', 'like', '%' . $request->q . '%')
                     ->orwhere('from_email', 'like', '%' . $request->q . '%')
                     ->orwhere('from_phone', 'like', '%' . $request->q . '%')
@@ -291,20 +319,29 @@ class DashboardController extends Controller
                     ->orderby('id', 'desc')->get();
 
                 //find Events
-                $Events = Event::where('created_by', '=', Auth::user()->id)->where('title', 'like',
-                    '%' . $request->q . '%')
+                $Events = Event::where('created_by', '=', Auth::user()->id)->where(
+                    'title',
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('details', 'like', '%' . $request->q . '%')
                     ->orderby('start_date', 'desc')->get();
 
                 //find Topics
-                $Topics = Topic::where('created_by', '=', Auth::user()->id)->where('title_' . Helper::currentLanguage()->code, 'like',
-                    '%' . $request->q . '%')
+                $Topics = Topic::where('created_by', '=', Auth::user()->id)->where(
+                    'title_' . Helper::currentLanguage()->code,
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('seo_title_' . Helper::currentLanguage()->code, 'like', '%' . $request->q . '%')
                     ->orderby('id', 'desc')->get();
 
                 //find Sections
-                $Sections = Section::where('created_by', '=', Auth::user()->id)->where('title_' . Helper::currentLanguage()->code, 'like',
-                    '%' . $request->q . '%')
+                $Sections = Section::where('created_by', '=', Auth::user()->id)->where(
+                    'title_' . Helper::currentLanguage()->code,
+                    'like',
+                    '%' . $request->q . '%'
+                )
                     ->orwhere('seo_title_' . Helper::currentLanguage()->code, 'like', '%' . $request->q . '%')
                     ->orderby('id', 'desc')->get();
             } else {
@@ -342,6 +379,24 @@ class DashboardController extends Controller
                     ->orwhere('seo_title_' . Helper::currentLanguage()->code, 'like', '%' . $request->q . '%')
                     ->orderby('id', 'desc')->get();
 
+                //find Companies
+                $company = Company::where('name_' . Helper::currentLanguage()->code, 'like', '%' . $request->q . '%')
+                    ->orderby('id', 'desc')->get();
+
+                //find Shipment
+                $shipment = Shipment::with(['user', 'company']) // Eager load user and company relationships
+                    ->where(function ($query) use ($request) {
+                        $query->where('receiver_phone', 'like', '%' . $request->q . '%') // Search by receiver phone
+                            ->orWhere('receiver_name', 'like', '%' . $request->q . '%'); // Search by receiver name
+                    })
+                    ->orWhereHas('user', function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request->q . '%'); // Search by user name
+                    })
+                    ->orWhereHas('company', function ($query) use ($request) {
+                        $query->where('name_' . Helper::currentLanguage()->code, 'like', '%' . $request->q . '%'); // Search by company name
+                    })
+                    ->orderBy('id', 'desc')
+                    ->get();
             }
             if (count($Webmails) > 0) {
                 $active_tab = 5;
@@ -355,15 +410,35 @@ class DashboardController extends Controller
             if (count($Sections) > 0) {
                 $active_tab = 2;
             }
+
             if (count($Topics) > 0) {
                 $active_tab = 1;
+            }
+            if (count($company) > 0) {
+                $active_tab = 6;
+            }
+
+            if (count($shipment) > 0) {
+                $active_tab = 7;
             }
 
             $search_word = $request->q;
 
-            return view("dashboard.search",
-                compact("GeneralWebmasterSections", "search_word", "Webmails", "Contacts", "Events", "Topics", "Sections",
-                    "active_tab"));
+            return view(
+                "dashboard.search",
+                compact(
+                    "GeneralWebmasterSections",
+                    "search_word",
+                    "Webmails",
+                    "Contacts",
+                    "Events",
+                    "Topics",
+                    "Sections",
+                    "active_tab",
+                    "company",
+                    "shipment"
+                )
+            );
         }
         return redirect()->action('Dashboard\DashboardController@search');
     }

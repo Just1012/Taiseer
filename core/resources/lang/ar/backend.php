@@ -741,6 +741,7 @@ return array(
     'user' => 'المستخدم ',
     'feedback' => 'التعليق ',
     'followers' => 'المتابعين ',
+    'created_at' => 'تم الانشاء فى',
 
 
 );
