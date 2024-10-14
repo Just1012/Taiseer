@@ -466,9 +466,9 @@ class WebmasterSectionsController extends Controller
                         }
                     }
 
-                    // Delete the actual WebmasterSections and related fields
-                    WebmasterSection::wherein('id', $request->ids)->delete();
-                    Menu::wherein('cat_id', $request->ids)->delete();
+                    $sectionIds = $request->ids;
+                    WebmasterSection::whereIn('id', $sectionIds)->delete();
+                    Menu::whereIn('cat_id', $sectionIds)->delete();
                 }
             }
         }
