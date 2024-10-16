@@ -167,6 +167,7 @@ class CompanyService
             DB::commit(); // Commit the transaction
             return true;
         } catch (Exception $e) {
+            throw $e;
             DB::rollBack(); // Rollback the transaction on exception
             return redirect()->back()->with('errorMessage', __('backend.error'));
         }

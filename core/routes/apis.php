@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::middleware('auth:sanctum')->group(function () {
     // General
@@ -63,3 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/login', 'AuthController@login');
+
+Route::post('/otpCreate',[RegisterController::class,'createOtp']);
+Route::post('/resendOtp',[RegisterController::class,'createOtp']);
+Route::post('/register',[RegisterController::class,'registerUser']);
