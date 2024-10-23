@@ -4,7 +4,9 @@ namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rating;
+use App\Models\Shipment;
 use Illuminate\Http\Request;
+use Auth;
 
 class RatingController extends Controller
 {
@@ -79,19 +81,31 @@ class RatingController extends Controller
         ]);
 
         try {
-            $rating = new Rating();
-            $rating->user_id = auth()->user()->id;
-            $rating->company_id = $validatedData['company_id'];
-            $rating->shipment_id = $validatedData['shipment_id'];
-            $rating->rate = $validatedData['rate'];
-            $rating->comment = $validatedData['comment'] ?? null;
-            $rating->save();
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'Rating stored successfully',
-                'data' => $rating
-            ], 200);
+            $shipment = Shipment::findOrFail($validatedData['shipment_id']);
+            if ($shipment->user_id == Auth::user()->id) {
+                $shipment->rating = $validatedData['rate'];
+                $shipment->save();
+
+                $rating = new Rating();
+                $rating->user_id = auth()->user()->id;
+                $rating->company_id = $validatedData['company_id'];
+                $rating->shipment_id = $validatedData['shipment_id'];
+                $rating->rate = $validatedData['rate'];
+                $rating->comment = $validatedData['comment'] ?? null;
+                $rating->save();
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Rating stored successfully',
+                    'data' => $rating
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => 403,
+                    'message' => 'Not Your Shipping',
+                ], 403);
+            }
         } catch (\Exception $e) {
 
             return response()->json([

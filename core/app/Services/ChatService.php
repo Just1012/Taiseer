@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
+
 class ChatService
 {
 
@@ -89,10 +90,13 @@ class ChatService
         try {
             // Define validation rules
             $rules = [
-                'shipment_id' => 'required|exists:shipments,id',
                 'message_text' => 'required|string',
             ];
 
+            // Add the shipment_id validation rule only if it is not 0
+            if ($request->shipment_id != null) {
+                $rules['shipment_id'] = 'required|exists:shipments,id';
+            }
             $messages = [
                 'message_text.required' => 'The message text is required.',
             ];
@@ -114,16 +118,26 @@ class ChatService
 
             if ($messageText) {
                 $shipmentId = $request->shipment_id;
-
-                // Check if a chat for the shipment already exists or create a new one
-                $chat = Chat::where('shipment_id', $shipmentId)->first();
-                if (!$chat) {
-                    $chat = Chat::create([
-                        'name' => 'Shipment# ' . $shipmentId,
-                        'shipment_id' => $shipmentId,
-                    ]);
+                if ($shipmentId != null) {
+                    $chat = Chat::where('shipment_id', $shipmentId)->first();
+                } else {
+                    $chat = Chat::where('name', "User# " . Auth::user()->id)->first();
                 }
 
+                if (!$chat) {
+                    if ($shipmentId == null) {
+                        $user = Auth::user()->id;
+                        $chat = Chat::create([
+                            'name' => "User# " . $user,
+                            'shipment_id' => $shipmentId,
+                        ]);
+                    } else {
+                        $chat = Chat::create([
+                            'name' => 'Shipment# ' . $shipmentId,
+                            'shipment_id' => $shipmentId,
+                        ]);
+                    }
+                }
                 // Create a new message in the chat
                 $newMessage = Message::create([
                     'chat_id' => $chat->id,

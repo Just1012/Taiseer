@@ -620,8 +620,14 @@ if ($WebmasterSection->$title_var != '') {
                     @if ($WebmasterSection->title_status)
                         {
                             "data": "id"
-                        }, {
-                            "data": "company_name", // Add this to fetch and display company name
+                        },
+
+                        {
+                            "data": "company_name",
+                            "render": function(data, type, row) {
+                                return data ? data :
+                                'N/A';
+                            },
                         },
                     @endif
                     @if ($WebmasterSection->date_status)

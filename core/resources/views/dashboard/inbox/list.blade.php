@@ -119,7 +119,7 @@
                             $('#chat-list').append(`
                         <a href="javascript:void(0);" class="list-group-item list-group-item-action chat-item"
                             data-chat-id="${chat.id}">
-                            ${chat.name}
+                            ${chat.chat_name}
                             <small class="badge badge-secondary text-danger">(${chat.unread_messages_count})</small>
                         </a>
                     `);
@@ -300,7 +300,7 @@
                                 $('#chat-list').append(`
                                     <a href="javascript:void(0);" class="list-group-item list-group-item-action chat-item"
                                         data-chat-id="${chat.id}">
-                                        ${chat.name}
+                                        ${chat.chat_name}
                                         <small class="badge badge-secondary text-danger">(${chat.unread_messages_count})</small>
                                     </a>
                                 `);
@@ -338,7 +338,7 @@
                     success: function(response) {
                         if (response.chat && response.messages) {
                             // Update chat title
-                            $('#chat-title').text(response.chat.name || 'N/A');
+                            $('#chat-title').text(response.chat.chat_name || 'N/A');
 
                             // Clear current messages
                             $('#chat-messages').empty();

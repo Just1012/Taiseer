@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -45,8 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/order', 'APIsController@orderSubmit');
     Route::post('/contact', 'APIsController@ContactPageSubmit');
 
+    // Company
+    Route::post('/getCompanies', 'CompanyController@getCompanies');
+    Route::get('/getCompaniesDetails/{id}', 'CompanyController@getCompaniesDetails');
+
     // Shipment
     Route::post('/storeShipment', 'ShipmentController@storeShipment');
+    Route::get('/getShipments', 'ShipmentController@getShipments');
 
     //Chat
     Route::get('/getMessages/{id}', 'ChatController@index');
@@ -61,10 +67,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/storeFollower', 'FollowerController@storeFollower');
     Route::get('/getFollower/{companyId}', 'FollowerController@getFollower');
 
+    // Profile
+    Route::post('/updateProfile', 'AuthController@updateProfile');
 });
 
 Route::post('/login', 'AuthController@login');
 
-Route::post('/otpCreate',[RegisterController::class,'createOtp']);
-Route::post('/resendOtp',[RegisterController::class,'createOtp']);
-Route::post('/register',[RegisterController::class,'registerUser']);
+Route::post('/otpCreate', [RegisterController::class, 'createOtp']);
+Route::post('/resendOtp', [RegisterController::class, 'createOtp']);
+Route::post('/register', [RegisterController::class, 'registerUser']);

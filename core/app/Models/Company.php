@@ -33,4 +33,8 @@ class Company extends Model
     {
         return $this->hasMany(Follower::class,);
     }
+    public function rating()
+    {
+        return $this->hasMany(Rating::class,);
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Payments\PaymentFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Auth;
 
 class ShipmentController extends Controller
 {
@@ -189,6 +190,26 @@ class ShipmentController extends Controller
                 'message' => 'Transaction failed: ' . $e->getMessage(),
             ], 400);
         }
+    }
+
+    public function getShipments()
+    {
+        $user = Auth::user()->id;
+        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom'])
+            ->where('user_id', $user)
+            ->paginate();
+
+        if ($shipments->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No shipments found for the user.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'shipments' => $shipments,
+        ], 200);
     }
 }
 

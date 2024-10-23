@@ -48,7 +48,7 @@ class ChatController extends Controller
         return response()->json([
             'chat' => [
                 'id' => $chat->id,
-                'name' => $chat->name,
+                'name' => $chat->chat_name,
             ],
             'messages' => $messages,
         ]);
@@ -128,17 +128,21 @@ class ChatController extends Controller
     {
         $query = $request->get('q');
 
-        // Search chats based on the query
-        $chats = Chat::where('name', 'LIKE', '%' . $query . '%')
-            ->withCount('messages') // Count all messages
+        // Fetch chats from the database
+        $chats = Chat::withCount('messages') // Count all messages
             ->withCount(['messages as unread_messages_count' => function ($query) {
                 $query->where('is_read', 0); // Count unread messages
             }])
             ->get(); // Fetch results
 
-        // Return the search results as JSON
+        // Filter the results based on the chat_name attribute
+        $filteredChats = $chats->filter(function ($chat) use ($query) {
+            return stripos($chat->chat_name, $query) !== false;
+        });
+
+        // Return the filtered search results as JSON
         return response()->json([
-            'chats' => $chats
+            'chats' => $filteredChats->values(), // Reset the keys
         ]);
     }
 }

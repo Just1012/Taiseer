@@ -270,14 +270,20 @@ class TopicsController extends Controller
                     $title = $Topic->$title_var2;
                 }
 
-                if ($Topic->$name_var != "") {
-                    $name =  $Topic->company->$name_var2;
+                if ($Topic->company) { // Check if the company object exists
+                    if (!empty($Topic->company->$name_var)) {
+                        $name =  $Topic->company->$name_var;
+                    } else {
+                        $name =  $Topic->company->$name_var2;
+                    }
+
+                    // Get company name
+                    $company_name = $name;
                 } else {
-                    $name =  $Topic->company->$name_var;
+                    // If company is null, set company name to 'N/A'
+                    $company_name = 'N/A';
                 }
 
-                // Get company name
-                $company_name = $name;
                 // Add company name to nested data
                 $nestedData['company_name'] = $company_name;
 
@@ -562,7 +568,7 @@ class TopicsController extends Controller
                 '0'
             )->orderby('row_no', 'asc')->get();
 
-        $companies = Company::where('company_status_id',2)->get();
+            $companies = Company::where('company_status_id', 2)->get();
 
             return view(
                 "dashboard.topics.create",
@@ -802,6 +808,7 @@ class TopicsController extends Controller
             // General for all pages
             $GeneralWebmasterSections = WebmasterSection::where('status', '=', '1')->orderby('row_no', 'asc')->get();
             // General END
+            $companies = Company::where('company_status_id', 2)->get();
 
             if (@Auth::user()->permissionsGroup->view_status) {
                 $Topic = Topic::where('created_by', '=', Auth::user()->id)->find($id);
@@ -820,7 +827,7 @@ class TopicsController extends Controller
 
                 return view(
                     "dashboard.topics.edit",
-                    compact("Topic", "GeneralWebmasterSections", "WebmasterSection", "fatherSections")
+                    compact("Topic", "GeneralWebmasterSections", "WebmasterSection", "fatherSections", "companies")
                 );
             } else {
                 return redirect()->action('Dashboard\TopicsController@index', $webmasterId);
@@ -837,6 +844,12 @@ class TopicsController extends Controller
             $Topic = Topic::find($id);
             if (!empty($Topic)) {
 
+                $user = Auth::user();
+                if ($user->company_id != null) {
+                    $Topic->company_id = $user->company_id;
+                } else {
+                    $Topic->company_id = $request->company_id;
+                }
 
                 $this->validate($request, [
                     'photo_file' => 'image',
