@@ -22,6 +22,7 @@ class FileManagerController extends Controller
         }
     }
 
+
     public function index()
     {
         // General for all pages

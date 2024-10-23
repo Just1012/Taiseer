@@ -98,6 +98,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->input('password')),
             'user_type' => 'customer',
             'permissions_id' => 3,  // Assign the default permission group
+            'status' => 1,
         ]);
 
         // Step 5: Return the successful registration response

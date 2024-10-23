@@ -71,8 +71,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/updateProfile', 'AuthController@updateProfile');
 });
 
-Route::post('/login', 'AuthController@login');
 
+Route::post('/login', 'AuthController@login');
+// Company Register
+Route::post('/companyRegister', 'CompanyController@companyRegister');
+
+// User Register
 Route::post('/otpCreate', [RegisterController::class, 'createOtp']);
 Route::post('/resendOtp', [RegisterController::class, 'createOtp']);
 Route::post('/register', [RegisterController::class, 'registerUser']);
+
+
+
+

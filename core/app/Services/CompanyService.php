@@ -11,6 +11,9 @@ use App\Models\CompanyActivitySelect;
 use App\Models\CompanyCity;
 use App\Models\CompanyCountry;
 use App\Models\TypeActivityCompany;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Support\Facades\DB; // Add this to your imports
 
 use Exception;
@@ -24,10 +27,11 @@ class CompanyService
         DB::beginTransaction(); // Start the transaction
 
         try {
+
             // Define validation rules
             $rules = [
                 'name_*' => 'required|string|max:255', // validate for all language name fields
-                'email' => 'required|email|max:255',
+                'email' => 'required|email|max:255|unique:users',
                 'code' => 'required|numeric',
                 'phone' => 'required|numeric',
                 'BL' => 'required|numeric',
@@ -47,6 +51,16 @@ class CompanyService
                 'typeActivity_id.*' => 'exists:type_activities,id',
             ];
 
+            // Add additional rules for company user creation if applicable
+            if ($request->type == 'company') {
+                $rules = array_merge($rules, [
+                    'password' => 'required|string|min:8|confirmed',
+                    'password_confirmation' => 'required|string|min:8',
+                ]);
+
+
+            }
+
             // Define custom messages
             $messages = [
                 'name_*.required' => 'The company name in all active languages is required.',
@@ -61,13 +75,21 @@ class CompanyService
                 'city_id.required' => 'At least one city must be selected.',
                 'typeActivity_id.required' => 'At least one activity type must be selected.',
                 'about_*.required' => 'The about field is required in all active languages.',
+                'password.required' => 'The password is required.',
+                'password.min' => 'The password must be at least 8 characters.',
+                'password.confirmed' => 'The password confirmation does not match.',
+                'password_confirmation.required' => 'The password confirmation is required.',
             ];
 
             // Validate request data
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
                 DB::rollBack(); // Rollback the transaction if validation fails
-                return redirect()->back()->withErrors($validator)->withInput();
+                return [
+                    'status' => 422, // Unprocessable Entity
+                    'message' => 'Validation errors occurred.',
+                    'errors' => $validator->errors(), // Include validation errors
+                ];
             }
 
             // Handle file uploads
@@ -154,7 +176,6 @@ class CompanyService
                 ]); // Bulk insert with timestamps
             }
 
-
             foreach ($typeActivities as $typeActivityID) {
                 CompanyActivitySelect::create([
                     'company_id' => $company->id,
@@ -162,14 +183,34 @@ class CompanyService
                 ]); // Bulk insert with timestamps
             }
 
-
+            // Create a user account if it's a company type
+            if ($request->type == 'company') {
+                $companyAccount = User::create([
+                    'name' => $company->name_en,
+                    'email' => $company->email,
+                    'phone' => $company->phone,
+                    'company_id' => $company->id,
+                    'password' => Hash::make($request->input('password')),
+                    'user_type' => 'company_user',
+                    'permissions_id' => 1,
+                ]);
+            }
 
             DB::commit(); // Commit the transaction
-            return true;
+            // Return useful data such as the created message and chat
+            return  [
+                'status' => 200,
+                'data' => [$company, $companyAccount],
+                'message' => 'Company and account created successfully',
+            ];
         } catch (Exception $e) {
-            throw $e;
+
             DB::rollBack(); // Rollback the transaction on exception
-            return redirect()->back()->with('errorMessage', __('backend.error'));
+            return [
+                'status' => 500,
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ];
         }
     }
 

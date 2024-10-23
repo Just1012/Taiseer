@@ -5,11 +5,25 @@ namespace App\Http\Controllers\APIs;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Exception;
+use App\Services\CompanyService;
+
 
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    protected $CompanyService;
+    public function __construct(CompanyService $CompanyService)
+    {
+        $this->CompanyService = $CompanyService;
+    }
+    public function companyRegister(Request $request)
+    {
+
+        $result = $this->CompanyService->storeCompany($request);
+
+          return apiResponse($result);
+    }
     public function getCompanies(Request $request)
     {
         // Start building the query for fetching companies
