@@ -68,7 +68,9 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $result = $this->CompanyService->storeCompany($request);
-        return redirect()->route('company.index');
+        return viewResponse($result, function () {
+            return redirect()->route('company.index');
+        });
     }
     public function edit(Company $company, $id)
     {

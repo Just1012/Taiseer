@@ -57,8 +57,6 @@ class CompanyService
                     'password' => 'required|string|min:8|confirmed',
                     'password_confirmation' => 'required|string|min:8',
                 ]);
-
-
             }
 
             // Define custom messages
@@ -198,9 +196,9 @@ class CompanyService
 
             DB::commit(); // Commit the transaction
             // Return useful data such as the created message and chat
-            return  [
+            return [
                 'status' => 200,
-                'data' => [$company, $companyAccount],
+                'data' => [$company, $companyAccount ?? null],
                 'message' => 'Company and account created successfully',
             ];
         } catch (Exception $e) {
