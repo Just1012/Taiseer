@@ -14,6 +14,7 @@ use App\Models\Menu;
 use App\Models\Section;
 use App\Models\Setting;
 use App\Models\Topic;
+use Illuminate\Support\Facades\Schema;
 use App\Models\TopicCategory;
 use App\Models\Webmail;
 use App\Models\Language;
@@ -191,29 +192,42 @@ class Helper
     // Amr Elgendy Method Search Function
     static function searchInQuery(Request $request, $searchableColumns, $query)
     {
+        $isNull = false;
+        if ($searchableColumns == null) {
+            $tableName = $query->getModel()->getTable();
+            $tableColumns = Schema::getColumnListing($tableName);
+            $isNull = true;
+        }
+        $searchableColumns = $searchableColumns ?? array_keys($request->all());
+
         foreach ($searchableColumns as $column) {
-            if ($request->has($column) && isset($request->$column)) {
-                $value = $request->input($column);
-                $operator = $request->input("{$column}_operator", 'equal');
-                if ($operator === 'like') {
-                    $query->where($column, 'like', '%' . $value . '%');
-                } elseif ($operator === 'equal') {
-                    if ($column === 'created_at') {
-                        $query->whereDate($column, $value);
-                    } else {
-                        $query->where($column, $value);
-                    }
-                }
+            if ($isNull && !in_array($column, $tableColumns) || !$request->filled($column)) {
+                continue;
+            }
+
+            $value = $request->input($column);
+            $operator = $request->input("{$column}_operator", 'equal');
+
+            // Apply filters based on operator
+            if ($operator === 'like') {
+                $query->where($column, 'like', '%' . $value . '%');
+            } elseif ($operator === 'equal') {
+                $column === 'created_at'
+                    ? $query->whereDate($column, $value)
+                    : $query->where($column, $value);
             }
         }
-        if ($request->has('start_date') || $request->has('end_date')) {
-            $startDate = $request->input('start_date', now()->toDateString());
-            $endDate = $request->input('end_date', now()->toDateString());
+
+        // Handle start_date and end_date filtering for created_at
+        if ($request->filled(['start_date', 'end_date'])) {
+            $startDate = $request->input('start_date', now()->startOfDay());
+            $endDate = $request->input('end_date', now()->endOfDay());
 
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-    }
 
+        return $query;
+    }
     static function SaveVisitorInfo($PageTitle)
     {
         if (config('smartend.geoip_status')) {
