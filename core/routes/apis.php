@@ -49,6 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Company
     Route::post('/getCompanies', 'CompanyController@getCompanies');
     Route::get('/getCompaniesDetails/{id}', 'CompanyController@getCompaniesDetails');
+    // Companies Shipments
+    Route::get('/getShipmentForCompanies','ShipmentController@getShipmentForCompanies');
+    Route::get('/shipmentDetails/{id}','ShipmentController@shipmentDetails');
+    Route::post('/companySearch','ShipmentController@companySearch');
 
     // Shipment
     Route::post('/storeShipment', 'ShipmentController@storeShipment');

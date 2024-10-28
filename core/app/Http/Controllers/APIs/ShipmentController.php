@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Payments\PaymentFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use Auth;
 
 class ShipmentController extends Controller
@@ -23,6 +24,7 @@ class ShipmentController extends Controller
                 'shipment_type' => 'required|in:specific,general',
                 'content_description' => 'required|string|max:255',
                 'expected_delivery_date' => 'required|date',
+                'typeActivity_id' => 'required|array',
 
                 'from_address_line' => 'required|string|max:255',
                 'from_country_id' => 'required|exists:countries,id',
@@ -158,6 +160,7 @@ class ShipmentController extends Controller
                 'status' => 'new',
                 'payment_method' => $validatedData['payment_method'],
                 'tracking_number' => $trackingNumber,
+                'typeActivity_id' => json_encode($validatedData['typeActivity_id']),
             ]);
 
             // Process the payment using the PaymentFactory
@@ -192,6 +195,8 @@ class ShipmentController extends Controller
         }
     }
 
+    // Get Shipment For User App
+    // Get User Owned Shipment
     public function getShipments()
     {
         $user = Auth::user()->id;
@@ -211,31 +216,119 @@ class ShipmentController extends Controller
             'shipments' => $shipments,
         ], 200);
     }
+
+    // Get Shipment For Company App
+    // Get Shipment for companies where has the same specific for this company or General and has the same typeActivity
+    public function getShipmentForCompanies()
+    {
+        // Get the authenticated user's company ID
+        $companyUser = Auth::user()->company_id;
+
+        // Get the type activity IDs associated with the company
+        $company = Company::with(['typeActivityCompanies.typeActivities'])
+            ->where('id', $companyUser)
+            ->first();
+
+        // Check if the company exists
+        if (!$company) {
+            return apiResponse([
+                'status' => 404,
+                'message' => 'Company not found.',
+                'data' => [],
+            ]);
+        }
+
+        // Extract and convert type activity IDs to strings
+        $typeActivityIds = $company->typeActivityCompanies
+            ->pluck('type_activity_id')
+            ->map(fn($id) => (string) $id)
+            ->toArray();
+
+        $shipments = Shipment::where(function ($query) use ($companyUser) {
+            $query->where('shipment_type', 'specific')
+                ->where('company_id', $companyUser);
+        })
+            ->orWhere(function ($query) use ($typeActivityIds) {
+                $query->where('shipment_type', 'general')
+                    ->whereJsonContains('typeActivity_id', $typeActivityIds);
+            });
+
+        // Return the response with API formatting
+        return apiResponse([
+            'status' => 200,
+            'message' => 'Shipments retrieved successfully.',
+            'data' => $shipments->paginate(),
+        ]);
+    }
+
+    // Get Shipment Details
+    public function shipmentDetails($id)
+    {
+
+        $shipmentDetails = Shipment::with(['user', 'addressTo', 'addressFrom', 'company', 'transaction'])
+            ->where('id', $id)
+            ->first();
+
+        if (!$shipmentDetails) {
+            // Return the response with API formatting
+            return apiResponse([
+                'status' => 404,
+                'message' => 'Shipments Not Found.',
+            ]);
+        }
+
+        // Return the response with API formatting
+        return apiResponse([
+            'status' => 200,
+            'message' => 'Shipments retrieved successfully.',
+            'data' => $shipmentDetails,
+        ]);
+    }
+
+    public function companySearch(Request $request)
+    {
+        // Get the authenticated user's company
+        $company = Auth::user()->company;
+
+        // Retrieve search values from the request, defaulting to an empty array if not provided
+
+        // Get the filtered shipments using the defined scope
+        $shipments = $company->relatedShipments($request);
+
+        // Return a standardized API response with status, message, and data
+        return apiResponse([
+            'status' => 200,
+            'message' => 'Shipments retrieved successfully.',
+            'data' => $shipments,
+        ]);
+    }
+
+
+    // Search In Shipment In companies
+
+    // {
+    //     "company_id": 1,
+    //     "shipment_type": "specific",
+    //     "content_description": "Electronic gadgets and accessories",
+    //     "expected_delivery_date": "2024-10-15",
+
+    //     "from_address_line": "123 Main Street",
+    //     "from_country_id": 1,
+    //     "from_city_id": 10,
+    //     "from_area": "Downtown",
+    //     "from_latitude": 40.712776,
+    //     "from_longitude": -74.005974,
+
+    //     "to_address_line": "456 Another Street",
+    //     "to_country_id": 2,
+    //     "to_city_id": 20,
+    //     "to_area": "Suburbs",
+    //     "to_latitude": 34.052235,
+    //     "to_longitude": -118.243683,
+
+    //     "receiver_name": "John Doe",
+    //     "receiver_phone": "+1234567890",
+    //     "payment_method": "cash"
+    //     "amount": 150.00
+    // }
 }
-
-
-// {
-//     "company_id": 1,
-//     "shipment_type": "specific",
-//     "content_description": "Electronic gadgets and accessories",
-//     "expected_delivery_date": "2024-10-15",
-
-//     "from_address_line": "123 Main Street",
-//     "from_country_id": 1,
-//     "from_city_id": 10,
-//     "from_area": "Downtown",
-//     "from_latitude": 40.712776,
-//     "from_longitude": -74.005974,
-
-//     "to_address_line": "456 Another Street",
-//     "to_country_id": 2,
-//     "to_city_id": 20,
-//     "to_area": "Suburbs",
-//     "to_latitude": 34.052235,
-//     "to_longitude": -118.243683,
-
-//     "receiver_name": "John Doe",
-//     "receiver_phone": "+1234567890",
-//     "payment_method": "cash"
-//     "amount": 150.00
-// }

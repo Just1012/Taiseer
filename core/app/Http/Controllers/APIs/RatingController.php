@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Rating;
 use App\Models\Shipment;
@@ -22,20 +23,6 @@ class RatingController extends Controller
             // Fetch the company_id and shipment_id from the request
             $companyId = $request->company_id;
             $shipmentId = $request->shipment_id;
-
-            // Initialize the query for ratings
-            $query = Rating::query();
-
-            // Add condition for company_id if provided
-            if ($companyId) {
-                $query->where('company_id', $companyId);
-            }
-
-            // Add condition for shipment_id if provided
-            if ($shipmentId) {
-                $query->where('shipment_id', $shipmentId);
-            }
-
             // If neither company_id nor shipment_id is provided, return a validation error
             if (!$companyId && !$shipmentId) {
                 return response()->json([
@@ -43,6 +30,11 @@ class RatingController extends Controller
                     'message' => 'Either company_id or shipment_id must be provided.',
                 ], 400);
             }
+
+            // Initialize the query for ratings
+            $query = Rating::query();
+
+            Helper::searchInQuery($request, ['company_id', 'shipment_id'], $query);
 
             // Fetch the paginated results
             $ratings = $query->latest()->paginate();
@@ -100,7 +92,7 @@ class RatingController extends Controller
                     'message' => 'Rating stored successfully',
                     'data' => $rating
                 ], 200);
-            }else{
+            } else {
                 return response()->json([
                     'status' => 403,
                     'message' => 'Not Your Shipping',

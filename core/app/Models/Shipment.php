@@ -4,9 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Shipment extends Model
 {
+     protected $casts = [
+        'typeActivity_id' => 'array', // Automatically cast to array
+    ];
+
+
     use HasFactory;
     protected $guarded = [];
     public function user(){
@@ -20,5 +26,9 @@ class Shipment extends Model
     }
     public function addressFrom(){
         return $this->belongsTo(Address::class,'from_address_id');
+    }
+
+    public function transaction(){
+        return $this->hasMany(Transaction::class);
     }
 }

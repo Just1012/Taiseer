@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Auth;
 use GeoIP;
+use Illuminate\Http\Request;
+
 use Spatie\Image\Image;
 
 class Helper
@@ -35,10 +37,10 @@ class Helper
 
     static function GeneralWebmasterSettings($var)
     {
-        if($var == "license"||$var == "purchase_code"){
+        if ($var == "license" || $var == "purchase_code") {
             return true;
         }
-        if($var == "api_status"){
+        if ($var == "api_status") {
             return true;
         }
         $_Loader_WebmasterSettings = session('_Loader_WebmasterSettings', []);
@@ -77,8 +79,11 @@ class Helper
     {
         //List of all Webmails
         if (@Auth::user()->permissionsGroup->view_status) {
-            $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->orderby('id', 'desc')->where('status', '=',
-                0)
+            $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->orderby('id', 'desc')->where(
+                'status',
+                '=',
+                0
+            )
                 ->where('cat_id', '=', 0)->limit(4)->get();
         } else {
             $Webmails = Webmail::orderby('id', 'desc')->where('status', '=', 0)
@@ -92,8 +97,11 @@ class Helper
     {
         //List of all Webmails
         if (@Auth::user()->permissionsGroup->view_status) {
-            $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->orderby('id', 'desc')->where('status', '=',
-                0)->where('cat_id', '=', 0)->get();
+            $Webmails = Webmail::where('created_by', '=', Auth::user()->id)->orderby('id', 'desc')->where(
+                'status',
+                '=',
+                0
+            )->where('cat_id', '=', 0)->get();
         } else {
             $Webmails = Webmail::orderby('id', 'desc')->where('status', '=', 0)->where('cat_id', '=', 0)->get();
         }
@@ -128,8 +136,11 @@ class Helper
         foreach (array('Firefox', 'OPR', 'Chrome', 'Safari') as $browser) {
             preg_match('/' . $browser . '/', $_SERVER['HTTP_USER_AGENT'], $matches);
             if ($matches) {
-                return str_replace('OPR', 'Opera',
-                    $browser);   // we don't care about the version, because this is a modern browser that updates itself unlike IE
+                return str_replace(
+                    'OPR',
+                    'Opera',
+                    $browser
+                );   // we don't care about the version, because this is a modern browser that updates itself unlike IE
             }
         }
     }
@@ -172,11 +183,35 @@ class Helper
             if (preg_match($regex, $user_agent)) {
                 $os_platform = $value;
             }
-
         }
 
         return $os_platform;
+    }
 
+    // Amr Elgendy Method Search Function
+    static function searchInQuery(Request $request, $searchableColumns, $query)
+    {
+        foreach ($searchableColumns as $column) {
+            if ($request->has($column) && isset($request->$column)) {
+                $value = $request->input($column);
+                $operator = $request->input("{$column}_operator", 'equal');
+                if ($operator === 'like') {
+                    $query->where($column, 'like', '%' . $value . '%');
+                } elseif ($operator === 'equal') {
+                    if ($column === 'created_at') {
+                        $query->whereDate($column, $value);
+                    } else {
+                        $query->where($column, $value);
+                    }
+                }
+            }
+        }
+        if ($request->has('start_date') || $request->has('end_date')) {
+            $startDate = $request->input('start_date', now()->toDateString());
+            $endDate = $request->input('end_date', now()->toDateString());
+
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
     }
 
     static function SaveVisitorInfo($PageTitle)
@@ -208,7 +243,6 @@ class Helper
                         try {
                             $visitor_ip_details = GeoIP($visitor_ip);
                         } catch (\Exception $e) {
-
                         }
 
                         $visitor_city = @$visitor_ip_details->city;
@@ -292,13 +326,14 @@ class Helper
                 $VisitedPage->date = date('Y-m-d');
                 $VisitedPage->time = date('H:i:s');
                 $VisitedPage->save();
-
-
             } else {
                 // Already Saved to analyticsVisitors
                 // Check if page saved
-                $Savedpage = AnalyticsPage::where('visitor_id', '=', $SavedVisitor->id)->where('ip', '=',
-                    $visitor_ip)->where('date', '=', date('Y-m-d'))->where('query', '=', $current_page_full_link)->first();
+                $Savedpage = AnalyticsPage::where('visitor_id', '=', $SavedVisitor->id)->where(
+                    'ip',
+                    '=',
+                    $visitor_ip
+                )->where('date', '=', date('Y-m-d'))->where('query', '=', $current_page_full_link)->first();
                 if (empty($Savedpage)) {
                     $VisitedPage = new AnalyticsPage;
                     $VisitedPage->visitor_id = $SavedVisitor->id;
@@ -311,7 +346,6 @@ class Helper
                     $VisitedPage->time = date('H:i:s');
                     $VisitedPage->save();
                 }
-
             }
         }
     }
@@ -405,7 +439,6 @@ class Helper
             $icon = "<i class=\"" . $ico . " fa-file-video-o\" style='color: #D30789;font-size: " . $size . "'></i>";
         }
         return $icon;
-
     }
 
     static function StringToSlug($string = "")
@@ -476,7 +509,6 @@ class Helper
                     $Check_SEO_st = false;
                 }
             }
-
         }
 
         if ($type == "category" && $id > 0) {
@@ -707,7 +739,6 @@ class Helper
                 }
             }
         } catch (\Exception $e) {
-
         }
         return $section_url;
     }
@@ -788,9 +819,7 @@ class Helper
                     }
                 }
             }
-
         } catch (\Exception $e) {
-
         }
         return $category_url;
     }
@@ -903,7 +932,6 @@ class Helper
                 }
             }
         } catch (\Exception $e) {
-
         }
         return $topic_url;
     }
@@ -950,8 +978,11 @@ class Helper
 
     static function SectionCategories($Id)
     {
-        return Section::where('webmaster_id', '=', $Id)->where('father_id', '=',
-            '0')->orderby('row_no', 'asc')->get();
+        return Section::where('webmaster_id', '=', $Id)->where(
+            'father_id',
+            '=',
+            '0'
+        )->orderby('row_no', 'asc')->get();
     }
 
     static function ParseLinks($str)
@@ -1023,7 +1054,6 @@ class Helper
                 }
             }
         } catch (\Exception $e) {
-
         }
     }
 
@@ -1040,9 +1070,6 @@ class Helper
                 }
             }
         } catch (\Exception $e) {
-
         }
     }
 }
-
-?>
