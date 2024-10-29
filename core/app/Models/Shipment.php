@@ -31,4 +31,7 @@ class Shipment extends Model
     public function transaction(){
         return $this->hasMany(Transaction::class);
     }
+    public function shipmentImage(){
+        return $this->hasMany(ShipmentImage::class);
+    }
 }

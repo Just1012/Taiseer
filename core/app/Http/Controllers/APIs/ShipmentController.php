@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers\APIs;
 
+use Auth;
 use App\Models\Address;
+use App\Models\Company;
 use App\Models\Shipment;
 use App\Models\Transaction;
+use App\Helpers\Helper; // Assuming you have a Helper class for image processing
+use Illuminate\Support\Facades\File;
+
 use Illuminate\Http\Request;
+use App\Models\ShipmentImage;
 use App\Payments\PaymentFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
-use Auth;
 
 class ShipmentController extends Controller
 {
+    private $uploadPath = 'uploads/shipment_images/';
     public function storeShipment(Request $request)
     {
-        // Begin a database transaction
-        DB::beginTransaction();
+         DB::beginTransaction();
         try {
             $validatedData = $request->validate([
                 'company_id' => 'nullable|exists:companies,id',
@@ -44,6 +48,9 @@ class ShipmentController extends Controller
                 'receiver_phone' => 'required|string|max:20',
                 'payment_method' => 'required|in:cash,online',
                 'amount' => 'required|numeric|min:0',
+                // Add validation for images
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+
             ], [
                 // Custom error messages for company_id
                 'company_id.exists' => 'The selected company does not exist.',
@@ -120,6 +127,11 @@ class ShipmentController extends Controller
                 'amount.required' => 'Please specify the payment amount.',
                 'amount.numeric' => 'The payment amount must be a valid number.',
                 'amount.min' => 'The payment amount must be at least 0.',
+
+                // Custom messages for images
+                'images.*.image' => 'Each file must be an image.',
+                'images.*.mimes' => 'Images must be of type: jpeg, png, jpg, or gif.',
+                'images.*.max' => 'Each image must not exceed 10MB in size.',
             ]);
 
             // Create the 'from' and 'to' addresses
@@ -163,6 +175,31 @@ class ShipmentController extends Controller
                 'typeActivity_id' => json_encode($validatedData['typeActivity_id']),
             ]);
 
+            $fileFinalNames = []; // To keep track of uploaded image names
+            $uploadPath = 'uploads/shipment_images/';
+             if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                     if ($image->isValid()) {
+                         $fileFinalName = time() . rand(1111, 9999) . '.' . $image->getClientOriginalExtension();
+
+                         if (!File::exists(public_path($uploadPath))) {
+                            File::makeDirectory(public_path($uploadPath), 0755, true);
+                        }
+
+                         $image->move(public_path($uploadPath), $fileFinalName);
+
+                         Helper::imageResize($uploadPath . $fileFinalName);
+                        Helper::imageOptimize($uploadPath . $fileFinalName);
+
+                         ShipmentImage::create([
+                            'shipment_id' => $shipment->id,
+                            'image' => $uploadPath . $fileFinalName,
+                        ]);
+
+                         $fileFinalNames[] = $fileFinalName;
+                    }
+                }
+            }
             // Process the payment using the PaymentFactory
             $payment = PaymentFactory::initialize(
                 $validatedData['payment_method'],
@@ -181,7 +218,8 @@ class ShipmentController extends Controller
                 'message' => 'Shipment created and payment processed successfully',
                 'shipment' => $shipment,
                 // 'transaction' => $transaction,
-                'payment_message' => $paymentResult
+                'payment_message' => $paymentResult,
+                'uploaded_images' => $fileFinalNames,
             ], 201);
         } catch (\Exception $e) {
             // If any error occurs, rollback the entire transaction
@@ -200,7 +238,7 @@ class ShipmentController extends Controller
     public function getShipments()
     {
         $user = Auth::user()->id;
-        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom'])
+        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom','shipmentImage'])
             ->where('user_id', $user)
             ->paginate();
 
@@ -244,7 +282,7 @@ class ShipmentController extends Controller
             ->map(fn($id) => (string) $id)
             ->toArray();
 
-        $shipments = Shipment::where(function ($query) use ($companyUser) {
+        $shipments = Shipment::with('shipmentImage')->where(function ($query) use ($companyUser) {
             $query->where('shipment_type', 'specific')
                 ->where('company_id', $companyUser);
         })
@@ -265,7 +303,7 @@ class ShipmentController extends Controller
     public function shipmentDetails($id)
     {
 
-        $shipmentDetails = Shipment::with(['user', 'addressTo', 'addressFrom', 'company', 'transaction'])
+        $shipmentDetails = Shipment::with(['user', 'addressTo', 'addressFrom', 'company', 'transaction','shipmentImage'])
             ->where('id', $id)
             ->first();
 
@@ -303,8 +341,6 @@ class ShipmentController extends Controller
         ]);
     }
 
-
-    // Search In Shipment In companies
 
     // {
     //     "company_id": 1,
