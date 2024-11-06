@@ -8,16 +8,34 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
+
+use Illuminate\Support\Facades\Auth;
+
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+
+     public function scopeCompaniesDataFilter(Builder $query)
+     {
+         $user = Auth::user();
+
+         if ($user && $user->user_type === 'company_user') {
+             $query->where(function ($q) use ($user) {
+                 $q->where('company_id', $user->company_id);
+                //    ->orWhereNull('company_id');
+             });
+         }
+     }
+
+
+
     protected $fillable = [
         'name',
         'email',
@@ -66,6 +84,7 @@ class User extends Authenticatable
     ];
 
 
+
     public function getProfilePhotoUrlAttribute()
     {
         return  $this->photo;
@@ -76,11 +95,15 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Permissions', 'permissions_id');
     }
 
-    public function company(){
-        return $this->belongsTo(Company::class,'company_id');
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
-    public function shipment(){
+    public function shipment()
+    {
         return $this->hasMany(Shipment::class);
     }
+
 }

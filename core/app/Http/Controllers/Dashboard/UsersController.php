@@ -50,13 +50,13 @@ class UsersController extends Controller
         // General END
 
         if (@Auth::user()->permissionsGroup->view_status) {
-            $Users = User::with('company')->where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby(
+            $Users = User::companiesDataFilter()->with('company')->where('created_by', '=', Auth::user()->id)->orwhere('id', '=', Auth::user()->id)->orderby(
                 'id',
                 'asc'
             )->paginate(config('smartend.backend_pagination'));
             $Permissions = Permissions::where('created_by', '=', Auth::user()->id)->orderby('id', 'asc')->get();
         } else {
-            $Users = User::with('company')->orderby('id', 'asc')->paginate(config('smartend.backend_pagination'));
+            $Users = User::companiesDataFilter()->with('company')->orderby('id', 'asc')->paginate(config('smartend.backend_pagination'));
             $Permissions = Permissions::orderby('id', 'asc')->get();
         }
         return view("dashboard.users.list", compact("Users", "Permissions", "GeneralWebmasterSections"));
