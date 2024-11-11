@@ -72,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getFollower/{companyId}', 'FollowerController@getFollower');
 
     // Profile
+    Route::get('/userProfile/{id}', 'AuthController@userProfile');
     Route::post('/updateProfile', 'AuthController@updateProfile');
 });
 

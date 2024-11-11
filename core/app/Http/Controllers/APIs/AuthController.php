@@ -46,6 +46,35 @@ class AuthController extends Controller
         ]);
     }
 
+    public function userProfile($id)
+    {
+        $user = User::find($id);
+
+        // Check if the user exists
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'User Not Found',
+            ], 404);
+        }
+
+        // Check if the authenticated user has permission to access this profile
+        if (auth()->id() !== $user->id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'You do not have permission to access this data',
+            ], 403);
+        }
+
+        // Return the user data if both checks pass
+        return response()->json([
+            'status' => 200,
+            'message' => 'User data fetched successfully',
+            'data' => $user
+        ], 200);
+    }
+
+
     public function updateProfile(Request $request)
     {
         // Validate request
