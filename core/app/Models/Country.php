@@ -15,4 +15,8 @@ class Country extends Model
     {
         return $this->belongsToMany(Company::class, 'company_countries', 'country_id', 'company_id');
     }
+
+    public function city(){
+        return $this->hasMany(City::class);
+    }
 }

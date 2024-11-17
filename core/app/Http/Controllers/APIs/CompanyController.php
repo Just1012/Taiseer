@@ -4,6 +4,7 @@ namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Country;
 use Exception;
 use App\Services\CompanyService;
 
@@ -141,5 +142,10 @@ class CompanyController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function getCountryWithCity(){
+        $country = Country::with('city')->get();
+        return $country;
     }
 }

@@ -85,7 +85,7 @@ Route::post('/companyRegister', 'CompanyController@companyRegister');
 Route::post('/otpCreate', [RegisterController::class, 'createOtp']);
 Route::post('/resendOtp', [RegisterController::class, 'createOtp']);
 Route::post('/register', [RegisterController::class, 'registerUser']);
-
+Route::get('/getCountryWithCity', 'CompanyController@getCountryWithCity');
 
 
 
