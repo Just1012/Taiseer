@@ -146,6 +146,12 @@ class CompanyController extends Controller
 
     public function getCountryWithCity(){
         $country = Country::with('city')->get();
-        return $country;
+        $result = [
+            'status' => 200,
+            'message' => 'Countries with Cities fetched successfully!',
+            'data' => $country,
+        ];
+
+        return apiResponse($result);
     }
 }

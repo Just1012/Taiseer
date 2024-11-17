@@ -53,8 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getShipmentForCompanies','ShipmentController@getShipmentForCompanies');
     Route::get('/shipmentDetails/{id}','ShipmentController@shipmentDetails');
     Route::post('/companySearch','ShipmentController@companySearch');
-    // getCountryWithCity
-    Route::get('/getCountryWithCity', 'CompanyController@getCountryWithCity');
+
 
     // Shipment
     Route::post('/storeShipment', 'ShipmentController@storeShipment');
@@ -87,6 +86,9 @@ Route::post('/companyRegister', 'CompanyController@companyRegister');
 Route::post('/otpCreate', [RegisterController::class, 'createOtp']);
 Route::post('/resendOtp', [RegisterController::class, 'createOtp']);
 Route::post('/register', [RegisterController::class, 'registerUser']);
+
+ // getCountryWithCity
+ Route::get('/getCountryWithCity', 'CompanyController@getCountryWithCity');
 
 
 
