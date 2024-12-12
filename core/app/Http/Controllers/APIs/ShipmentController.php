@@ -234,17 +234,23 @@ class ShipmentController extends Controller
         }
     }
 
-    // Get Shipment For User App
-
-    public function getShipments()
+    // Get Shipment & Filter For User App
+    public function getShipments(Request $request)
     {
         // Get the authenticated user's ID
         $user = Auth::user()->id;
 
-        // Retrieve the shipments with their relations
-        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom', 'shipmentImage'])
-            ->where('user_id', $user)
-            ->paginate(10);  // Define pagination per page (e.g., 10)
+        // Start building the query for shipments
+        $query = Shipment::with(['user', 'company', 'addressTo', 'addressFrom', 'shipmentImage'])
+            ->where('user_id', $user);
+
+        // Filter shipments by status if provided in the request
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Paginate the results (after applying filters)
+        $shipments = $query->paginate(10);
 
         // If no shipments found, return error response
         if ($shipments->isEmpty()) {
@@ -254,7 +260,7 @@ class ShipmentController extends Controller
             ], 404);
         }
 
-        // Extract and decode the category IDs from shipments
+        // Extract and decode the typeActivity_id from shipments
         $allTypeActivity = $shipments->pluck('typeActivity_id')
             ->map(fn($typeActivityIds) => json_decode($typeActivityIds, true))  // Decode each typeActivity_id
             ->filter()
@@ -266,7 +272,7 @@ class ShipmentController extends Controller
         $typeActivities = TypeActivity::whereIn('id', $allTypeActivity)->get()->keyBy('id');
 
         // Map shipments to add corresponding type activities
-        $shipments = $shipments->map(function ($item) use ($typeActivities) {
+        $shipments->transform(function ($item) use ($typeActivities) {
             $shipmentId = json_decode($item->typeActivity_id, true);
             $item->typeActivities = $typeActivities->only($shipmentId)->values();
             unset($item->typeActivity_id);  // Remove unnecessary typeActivity_id field

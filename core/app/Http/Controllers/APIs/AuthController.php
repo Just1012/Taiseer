@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Config;
 use Auth;
-use Helper;
-
+use App\Helpers\Helper;
 
 class AuthController extends Controller
 {
