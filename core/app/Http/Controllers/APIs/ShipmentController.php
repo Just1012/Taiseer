@@ -15,13 +15,14 @@ use App\Models\ShipmentImage;
 use App\Payments\PaymentFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\TypeActivity;
 
 class ShipmentController extends Controller
 {
     private $uploadPath = 'uploads/shipment_images/';
     public function storeShipment(Request $request)
     {
-         DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $validatedData = $request->validate([
                 'company_id' => 'nullable|exists:companies,id',
@@ -177,26 +178,26 @@ class ShipmentController extends Controller
 
             $fileFinalNames = []; // To keep track of uploaded image names
             $uploadPath = 'uploads/shipment_images/';
-             if ($request->hasFile('images')) {
+            if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
-                     if ($image->isValid()) {
-                         $fileFinalName = time() . rand(1111, 9999) . '.' . $image->getClientOriginalExtension();
+                    if ($image->isValid()) {
+                        $fileFinalName = time() . rand(1111, 9999) . '.' . $image->getClientOriginalExtension();
 
-                         if (!File::exists(public_path($uploadPath))) {
+                        if (!File::exists(public_path($uploadPath))) {
                             File::makeDirectory(public_path($uploadPath), 0755, true);
                         }
 
-                         $image->move(public_path($uploadPath), $fileFinalName);
+                        $image->move(public_path($uploadPath), $fileFinalName);
 
-                         Helper::imageResize($uploadPath . $fileFinalName);
+                        Helper::imageResize($uploadPath . $fileFinalName);
                         Helper::imageOptimize($uploadPath . $fileFinalName);
 
-                         ShipmentImage::create([
+                        ShipmentImage::create([
                             'shipment_id' => $shipment->id,
                             'image' => $uploadPath . $fileFinalName,
                         ]);
 
-                         $fileFinalNames[] = $fileFinalName;
+                        $fileFinalNames[] = $fileFinalName;
                     }
                 }
             }
@@ -234,14 +235,18 @@ class ShipmentController extends Controller
     }
 
     // Get Shipment For User App
-    // Get User Owned Shipment
+
     public function getShipments()
     {
+        // Get the authenticated user's ID
         $user = Auth::user()->id;
-        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom','shipmentImage'])
-            ->where('user_id', $user)
-            ->paginate();
 
+        // Retrieve the shipments with their relations
+        $shipments = Shipment::with(['user', 'company', 'addressTo', 'addressFrom', 'shipmentImage'])
+            ->where('user_id', $user)
+            ->paginate(10);  // Define pagination per page (e.g., 10)
+
+        // If no shipments found, return error response
         if ($shipments->isEmpty()) {
             return response()->json([
                 'status' => 'error',
@@ -249,9 +254,30 @@ class ShipmentController extends Controller
             ], 404);
         }
 
+        // Extract and decode the category IDs from shipments
+        $allTypeActivity = $shipments->pluck('typeActivity_id')
+            ->map(fn($typeActivityIds) => json_decode($typeActivityIds, true))  // Decode each typeActivity_id
+            ->filter()
+            ->flatten()
+            ->unique()
+            ->toArray();
+
+        // Get related type activities
+        $typeActivities = TypeActivity::whereIn('id', $allTypeActivity)->get()->keyBy('id');
+
+        // Map shipments to add corresponding type activities
+        $shipments = $shipments->map(function ($item) use ($typeActivities) {
+            $shipmentId = json_decode($item->typeActivity_id, true);
+            $item->typeActivities = $typeActivities->only($shipmentId)->values();
+            unset($item->typeActivity_id);  // Remove unnecessary typeActivity_id field
+            return $item;
+        });
+
+        // Return the final response with paginated data
         return response()->json([
             'status' => 'success',
             'shipments' => $shipments,
+            'message' => 'Shipments found successfully.'
         ], 200);
     }
 
@@ -303,7 +329,7 @@ class ShipmentController extends Controller
     public function shipmentDetails($id)
     {
 
-        $shipmentDetails = Shipment::with(['user', 'addressTo', 'addressFrom', 'company', 'transaction','shipmentImage'])
+        $shipmentDetails = Shipment::with(['user', 'addressTo', 'addressFrom', 'company', 'transaction', 'shipmentImage'])
             ->where('id', $id)
             ->first();
 
