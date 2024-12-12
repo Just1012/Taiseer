@@ -5,6 +5,7 @@ namespace App\Http\Controllers\APIs;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\Follower;
 use Exception;
 use App\Services\CompanyService;
 
@@ -23,7 +24,7 @@ class CompanyController extends Controller
 
         $result = $this->CompanyService->storeCompany($request);
 
-          return apiResponse($result);
+        return apiResponse($result);
     }
     public function getCompanies(Request $request)
     {
@@ -67,7 +68,6 @@ class CompanyController extends Controller
             }
             // Remove the rating attribute to skip it in the response
             unset($company->rating);
-
             return $company;
         });
 
@@ -128,6 +128,14 @@ class CompanyController extends Controller
                 $company->average_rating = null; // No ratings, set as null or 0
             }
 
+            // Check if the authenticated user is following this company
+            $follower = Follower::where('user_id', auth()->user()->id)
+                ->where('company_id', $company->id)
+                ->first();
+
+            // Add the `isFollowed` attribute to the company
+            $company->isFollowed = $follower ? 1 : 0;
+
             // Return the response with the specific company details
             return apiResponse([
                 'status' => 200,
@@ -144,7 +152,8 @@ class CompanyController extends Controller
         }
     }
 
-    public function getCountryWithCity(){
+    public function getCountryWithCity()
+    {
         $country = Country::with('city')->get();
         $result = [
             'status' => 200,
